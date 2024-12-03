@@ -1,20 +1,20 @@
 /* eslint-disable react/no-unknown-property */
 import { useEffect } from 'react';
-import Aos from 'aos';
-import 'aos/dist/aos.css';
-import '../css/style.css';
+// import Aos from 'aos';
+// import 'aos/dist/aos.css';
+// import '../css/style.css';
 
 const Home = () => {
     useEffect(() => {
         document.title = "Trang chủ";
-        Aos.init();
+        // Aos.init();
     }, []);
 
     return (
     <>
-      <div id="spinner" className="spinner">
+      {/* <div id="spinner" className="spinner">
         <div className="spinner-grow text-primary" role="status"></div>
-      </div>
+      </div> */}
       
       <div className="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s" style={{
                 visibility: "visible", animationDelay: "0.1s", animationName: "fadeIn"
@@ -42,10 +42,10 @@ const Home = () => {
                     <div className="collapse navbar-collapse" id="navbarCollapse">
                         <div className="navbar-nav mx-auto">
                             <a href="/home" className="nav-item nav-link active">Home</a>
-                            <a href="about.html" className="nav-item nav-link">About</a>
-                            <a href="service.html" className="nav-item nav-link">Services</a>
-                            <a href="program.html" className="nav-item nav-link">Programs</a>
-                            <a href="event.html" className="nav-item nav-link">Events</a>
+                            <a href="/about" className="nav-item nav-link">About</a>
+                            <a href="/service" className="nav-item nav-link">Services</a>
+                            <a href="/program" className="nav-item nav-link">Programs</a>
+                            <a href="/event" className="nav-item nav-link">Events</a>
                             <div className="nav-item dropdown">
                                 <a href="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                 <div className="dropdown-menu m-0 bg-secondary rounded-0">
@@ -160,7 +160,9 @@ const Home = () => {
 
         <div className="container-fluid service py-5">
             <div className="container py-5">
-                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 700px;">
+                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{
+                    maxWidth: "700px"
+                }}>
                     <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">What We Do</h4>
                     <h1 className="mb-5 display-3">Thanks To Get Started With Our School</h1>
                 </div>
@@ -224,7 +226,9 @@ const Home = () => {
 
         <div className="container-fluid program  py-5">
             <div className="container py-5">
-                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 700px;">
+                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{
+                    maxWidth: "700px"
+                }}>
                     <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Our Programs</h4>
                     <h1 className="mb-5 display-3">We Offer An Exclusive Program For Kids</h1>
                 </div>
@@ -244,7 +248,9 @@ const Home = () => {
                                 </div>
                             </div>
                             <div className="program-teacher d-flex align-items-center border-top border-primary bg-white px-4 py-3">
-                                <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="Image" style="width: 70px; height: 70px;"/>
+                                <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="Image" style={{
+                                    width: "70px", height: "70px"
+                                }}/>
                                 <div className="ms-3">
                                     <h6 className="mb-0 text-primary">Mary Mordern</h6>
                                     <small>Arts Designer</small>
@@ -272,7 +278,9 @@ const Home = () => {
                                 </div>
                             </div>
                             <div className="program-teacher d-flex align-items-center border-top border-primary bg-white px-4 py-3">
-                                <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="" style="width: 70px; height: 70px;"/>
+                                <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="" style={{
+                                    width: "70px", height: "70px"
+                                }}/>
                                 <div className="ms-3">
                                     <h6 className="mb-0 text-primary">Mary Mordern</h6>
                                     <small>Arts Designer</small>
@@ -300,7 +308,7 @@ const Home = () => {
                                 </div>
                             </div>
                             <div className="program-teacher d-flex align-items-center border-top border-primary bg-white px-4 py-3">
-                                <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="" style="width: 70px; height: 70px;"/>
+                                <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="" style={{ width: "70px", height: "70px"}}/>
                                 <div className="ms-3">
                                     <h6 className="mb-0 text-primary">Mary Mordern</h6>
                                     <small>Arts Designer</small>
@@ -323,7 +331,9 @@ const Home = () => {
 
         <div className="container-fluid events py-5 bg-light">
             <div className="container py-5">
-                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 700px;">
+                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{
+                    maxWidth: "700px"
+                }}>
                     <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Our Events</h4>
                     <h1 className="mb-5 display-3">Our Upcoming Events</h1>
                 </div>
@@ -398,7 +408,9 @@ const Home = () => {
 
         <div className="container-fluid blog py-5">
             <div className="container py-5">
-                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 600px;">
+                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{
+                    maxWidth: "600px"
+                }}>
                     <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Latest News & Blog</h4>
                     <h1 className="mb-5 display-3">Read Our Latest News & Blog</h1>
                 </div>
@@ -414,7 +426,12 @@ const Home = () => {
                             </div>
                             <div className="blog-content d-flex align-items-center px-4 py-3 bg-light">
                                 <div className="overflow-hidden rounded-circle rounded-top border border-primary">
-                                    <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 rounded-top" alt="Image" style="width: 70px; height: 70px; border-style: dotted; border-color: var(--bs-primary) !important;"/>
+                                    <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 rounded-top" alt="Image" style={{
+                                            width: '70px',
+                                            height: '70px',
+                                            borderStyle: 'dotted',
+                                            borderColor: 'var(--bs-primary) !important',
+                                    }}/>
                                 </div>
                                 <div className="ms-3">
                                     <h6 className="text-primary">Mary Mordern</h6>
@@ -443,7 +460,12 @@ const Home = () => {
                             </div>
                             <div className="blog-content d-flex align-items-center px-4 py-3 bg-light">
                                 <div className="overflow-hidden rounded-circle rounded-top border border-primary">
-                                    <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 rounded-top" alt="" style="width: 70px; height: 70px; border-style: dotted; border-color: var(--bs-primary) !important;"/>
+                                    <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 rounded-top" alt="" style={{
+                                            width: '70px',
+                                            height: '70px',
+                                            borderStyle: 'dotted',
+                                            borderColor: 'var(--bs-primary) !important',
+                                    }}/>
                                 </div>
                                 <div className="ms-3">
                                     <h6 className="text-primary">Mary Mordern</h6>
@@ -472,7 +494,12 @@ const Home = () => {
                             </div>
                             <div className="blog-content d-flex align-items-center px-4 py-3 bg-light">
                                 <div className="overflow-hidden rounded-circle rounded-top border border-primary">
-                                    <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 rounded-top" alt="" style="width: 70px; height: 70px; border-style: dotted; border-color: var(--bs-primary) !important;"/>
+                                    <img src="img/program-teacher.jpg" className="img-fluid rounded-circle p-2 rounded-top" alt="" style={{
+                                            width: '70px',
+                                            height: '70px',
+                                            borderStyle: 'dotted',
+                                            borderColor: 'var(--bs-primary) !important',
+                                    }}/>
                                 </div>
                                 <div className="ms-3">
                                     <h6 className="text-primary">Mary Mordern</h6>
@@ -497,7 +524,9 @@ const Home = () => {
 
         <div className="container-fluid team py-5">
             <div className="container py-5">
-                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 600px;">
+                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{
+                    maxWidth: "600px"
+                }}>
                     <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Our Team</h4>
                     <h1 className="mb-5 display-3">Meet With Our Expert Teacher</h1>
                 </div>
@@ -569,17 +598,23 @@ const Home = () => {
 
         <div className="container-fluid testimonial py-5">
             <div className="container py-5">
-                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 700px;">
+                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{
+                    maxWidth: "700px"
+                }}>
                     <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Our Testimonials</h4>
                     <h1 className="mb-5 display-3">Parents Say About Us</h1>
                 </div>
                 <div className="owl-carousel testimonial-carousel wow fadeIn" data-wow-delay="0.3s">
                     <div className="testimonial-item img-border-radius bg-light border border-primary p-4">
                         <div className="p-4 position-relative">
-                            <i className="fa fa-quote-right fa-2x text-primary position-absolute" style="top: 15px; right: 15px;"></i>
+                            <i className="fa fa-quote-right fa-2x text-primary position-absolute" 
+                                style={{
+                                    top: '15px',
+                                    right: '15px',
+                                    }}></i>
                             <div className="d-flex align-items-center">
                                 <div className="border border-primary bg-white rounded-circle">
-                                    <img src="img/testimonial-2.jpg" className="rounded-circle p-2" style="width: 80px; height: 80px; border-style: dotted; border-color: var(--bs-primary);" alt=""/>
+                                    <img src="img/testimonial-2.jpg" className="rounded-circle p-2" style={{ width: '80px', height: '80px', borderStyle: 'dotted', borderColor: 'var(--bs-primary)' }} alt=""/>
                                 </div>
                                 <div className="ms-4">
                                     <h4 className="text-dark">Client Name</h4>
@@ -601,10 +636,13 @@ const Home = () => {
                     </div>
                     <div className="testimonial-item img-border-radius bg-light border border-primary p-4">
                         <div className="p-4 position-relative">
-                            <i className="fa fa-quote-right fa-2x text-primary position-absolute" style="top: 15px; right: 15px;"></i>
+                            <i className="fa fa-quote-right fa-2x text-primary position-absolute" style={{
+  top: '15px',
+  right: '15px',
+}}></i>
                             <div className="d-flex align-items-center">
                                 <div className="border border-primary bg-white rounded-circle">
-                                    <img src="img/testimonial-2.jpg" className="rounded-circle p-2" style="width: 80px; height: 80px; border-style: dotted; border-color: var(--bs-primary);" alt=""/>
+                                    <img src="img/testimonial-2.jpg" className="rounded-circle p-2" style={{ width: '80px', height: '80px', borderStyle: 'dotted', borderColor: 'var(--bs-primary)' }} alt=""/>
                                 </div>
                                 <div className="ms-4">
                                     <h4 className="text-dark">Client Name</h4>
@@ -626,10 +664,10 @@ const Home = () => {
                     </div>
                     <div className="testimonial-item img-border-radius bg-light border border-primary p-4">
                         <div className="p-4 position-relative">
-                            <i className="fa fa-quote-right fa-2x text-primary position-absolute" style="top: 15px; right: 15px;"></i>
+                            <i className="fa fa-quote-right fa-2x text-primary position-absolute" style={{ top: '15px', right: '15px' }}></i>
                             <div className="d-flex align-items-center">
                                 <div className="border border-primary bg-white rounded-circle">
-                                    <img src="img/testimonial-2.jpg" className="rounded-circle p-2" style="width: 80px; height: 80px; border-style: dotted; border-color: var(--bs-primary);" alt=""/>
+                                    <img src="img/testimonial-2.jpg" className="rounded-circle p-2" style={{ width: '80px', height: '80px', borderStyle: 'dotted', borderColor: 'var(--bs-primary)' }} alt=""/>
                                 </div>
                                 <div className="ms-4">
                                     <h4 className="text-dark">Client Name</h4>
@@ -663,7 +701,7 @@ const Home = () => {
                             <p className="mb-4">There cursus massa at urnaaculis estieSed aliquamellus vitae ultrs condmentum leo massamollis its estiegittis miristum.</p>
                             <div className="border border-primary p-3 rounded bg-light">
                                 <h5 className="mb-3">Newsletter</h5>
-                                <div className="position-relative mx-auto border border-primary rounded" style="max-width: 400px;">
+                                <div className="position-relative mx-auto border border-primary rounded" style={{maxWidth:"400px"}}>
                                     <input className="form-control border-0 w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email"/>
                                     <button type="button" className="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2 text-white">SignUp</button>
                                 </div>
@@ -673,7 +711,7 @@ const Home = () => {
                     <div className="col-md-6 col-lg-4 col-xl-3">
                         <div className="footer-item">
                             <div className="d-flex flex-column p-4 ps-5 text-dark border border-primary" 
-                            style="border-radius: 50% 20% / 10% 40%;">
+                            style={{ borderRadius: '50% 20% / 10% 40%' }}>
                                 <p>Monday: 8am to 5pm</p>
                                 <p>Tuesday: 8am to 5pm</p>
                                 <p>Wednes: 8am to 5pm</p>
