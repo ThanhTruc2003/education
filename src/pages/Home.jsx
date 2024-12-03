@@ -1,15 +1,25 @@
 /* eslint-disable react/no-unknown-property */
+import { useEffect } from 'react';
+import Aos from 'aos';
+import 'aos/dist/aos.css';
+import '../css/style.css';
+
 const Home = () => {
-  return (
+    useEffect(() => {
+        document.title = "Trang chủ";
+        Aos.init();
+    }, []);
+
+    return (
     <>
-      <div
-        id="spinner"
-        className="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50  d-flex align-items-center justify-content-center"
-      >
+      <div id="spinner" className="spinner">
         <div className="spinner-grow text-primary" role="status"></div>
       </div>
-      <div className="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
-            <div className="container topbar bg-primary d-none d-lg-block py-2" style="border-radius: 0 40px">
+      
+      <div className="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s" style={{
+                visibility: "visible", animationDelay: "0.1s", animationName: "fadeIn"
+            }}>
+            <div className="container topbar bg-primary d-none d-lg-block py-2" style={{borderRadius: "0 40px"}}>
                 <div className="d-flex justify-content-between">
                     <div className="top-info ps-2">
                         <small className="me-3"><i className="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" className="text-white">123 Street, New York</a></small>
@@ -25,13 +35,13 @@ const Home = () => {
             </div>
             <div className="container px-0">
                 <nav className="navbar navbar-light navbar-expand-xl py-3">
-                    <a href="index.html" className="navbar-brand"><h1 className="text-primary display-6">Baby<span className="text-secondary">Care</span></h1></a>
+                    <a href="/home" className="navbar-brand"><h1 className="text-primary display-6">Baby<span className="text-secondary">Care</span></h1></a>
                     <button className="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                         <span className="fa fa-bars text-primary"></span>
                     </button>
                     <div className="collapse navbar-collapse" id="navbarCollapse">
                         <div className="navbar-nav mx-auto">
-                            <a href="index.html" className="nav-item nav-link active">Home</a>
+                            <a href="/home" className="nav-item nav-link active">Home</a>
                             <a href="about.html" className="nav-item nav-link">About</a>
                             <a href="service.html" className="nav-item nav-link">Services</a>
                             <a href="program.html" className="nav-item nav-link">Programs</a>
@@ -49,9 +59,11 @@ const Home = () => {
                         </div>
                         <div className="d-flex me-4">
                             <div id="phone-tada" className="d-flex align-items-center justify-content-center">
-                                <a href="" className="position-relative wow tada" data-wow-delay=".9s" >
+                                <a href="" className="position-relative wow tada" data-wow-delay=".9s" style={{
+                                    visibility: "visible", animationDelay: "0.9s", animationName: "tada"
+                                }}>
                                     <i className="fa fa-phone-alt text-primary fa-2x me-4"></i>
-                                    <div className="position-absolute" style="top: -7px; left: 20px;">
+                                    <div className="position-absolute" style={{top: "-7px", left: "20px"}}>
                                         <span><i className="fa fa-comment-dots text-secondary"></i></span>
                                     </div>
                                 </a>
@@ -66,6 +78,7 @@ const Home = () => {
                 </nav>
             </div>
         </div>
+        
         <div className="modal fade" id="searchModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-fullscreen">
                 <div className="modal-content rounded-0">
