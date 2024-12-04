@@ -61,7 +61,7 @@ const Home = () => {
                                 </a>
                             </div>
                             <div className="d-flex flex-column pe-3 border-end border-primary">
-                                <span className="text-primary">Have Any Questions?</span>
+                                <span className="text-primary">Have any questions?</span>
                                 <a><span className="text-secondary">0376 805 991</span></a>
                             </div>
                         </div>
