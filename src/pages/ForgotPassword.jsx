@@ -35,7 +35,8 @@ const ForgotPassword = () => {
                     <Box textAlign="center" mt={1} mb={5}>
                         <span style={{ fontFamily: 'sans-serif' }}>Nhập địa chỉ email để lấy lại mật khẩu</span>
                     </Box>
-                    <TextField className='input'
+                    <TextField 
+                        className="red-asterisk"
                         margin="normal"
                         required
                         fullWidth
@@ -45,7 +46,8 @@ const ForgotPassword = () => {
                         autoComplete="username"
                         autoFocus
                     />
-                    <TextField className='input'
+                    <TextField 
+                        className="red-asterisk"
                         margin="normal"
                         required
                         fullWidth

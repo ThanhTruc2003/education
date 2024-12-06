@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Button, Checkbox, FormControlLabel, TextField, Typography, Container, Box, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -6,14 +6,17 @@ import { RadioGroup, Radio } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import dayjs from 'dayjs';
 
 import '../css/CreateAccount.css';
 
 const CreateAccount = () => {
+    const navigate = useNavigate(); 
     const [isRegister] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    /*const [dateOfBirth, setDateOfBirth] = useState(null);*/
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -22,8 +25,12 @@ const CreateAccount = () => {
         dateOfBirth: null,
         gender: false,
         address: '',
-        phoneNumber: ''
+        phoneNumber: '',
+        role: 1,
+        confirmed: true
     });
+
+    const [passwordError, setPasswordError] = useState('');
 
     useEffect(() => {
         document.title = "Đăng nhập";
@@ -68,77 +75,110 @@ const CreateAccount = () => {
         };
     }, [isRegister]);
 
-    const handleInputChange = (e) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
+        setFormData({
+            ...formData,
             [name]: value
-        }));
+        });
     };
 
-    const handleGenderChange = (e) => {
-        setFormData(prev => ({
-            ...prev,
-            gender: e.target.value === 'true'
-        }));
-    };
-
-    const handleSubmit = async (e) => {
+    const handleSubmitRegister = async (e) => {
         e.preventDefault();
+        
+        if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword || !formData.dateOfBirth || !formData.address || !formData.phoneNumber) {
+            toast.warning("Vui lòng điền đầy đủ thông tin");
+            return;
+        }
 
         if (formData.password !== formData.confirmPassword) {
-            alert('Mật khẩu xác nhận không khớp!');
+            setPasswordError("Mật khẩu không đúng");
+            return;
+        } else {
+            setPasswordError('');
+        }
+
+        const existingUsersResponse = await fetch('http://localhost:1337/api/users');
+        if (!existingUsersResponse.ok) {
+            throw new Error('Không thể kiểm tra tài khoản');
+        }
+        const existingUsers = await existingUsersResponse.json();
+
+        const userExists = existingUsers.some(user => user.username === formData.username);
+        if (userExists) {
+            toast.error("Tài khoản đã tồn tại");
             return;
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            alert('Email không hợp lệ!');
-            return;
-        }
+        const formattedData = {
+            ...formData,
+            dateOfBirth: dayjs(formData.dateOfBirth).format('YYYY-MM-DD')
+        };
 
         try {
-            const response = await fetch('http://localhost:1337/api/auth/local/register', {
+            const response = await fetch('http://localhost:1337/api/users', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password,
-                    dateOfBirth: formData.dateOfBirth ? formData.dateOfBirth.format('YYYY-MM-DD') : null,
-                    gender: formData.gender,
-                    address: formData.address,
-                    phoneNumber: formData.phoneNumber
-                })
+                body: JSON.stringify(formattedData)
             });
-
-            const data = await response.json();
-
+            const result = await response.json();
             if (response.ok) {
-                alert('Đăng ký thành công!');
-                setFormData({
-                    username: '',
-                    email: '',
-                    password: '',
-                    confirmPassword: '',
-                    dateOfBirth: null,
-                    gender: false,
-                    address: '',
-                    phoneNumber: ''
-                });
+                toast.success("Đăng ký thành công");
+                setFormData({ username: "", email: "", password: "", confirmPassword: "", dateOfBirth: "", address: "", phoneNumber: "" });
             } else {
-                alert('Đăng ký thất bại: ' + (data.error?.message || 'Đã có lỗi xảy ra'));
+                toast.error(result.message || "Đăng ký thất bại");
             }
         } catch (error) {
-            console.error('Lỗi:', error);
-            alert('Đã có lỗi xảy ra khi đăng ký');
+            console.error('Error:', error);
+            toast.error("Đăng ký thất bại");
         }
     };
+
+    const handleSubmitLogin = async (e) => {
+        e.preventDefault();
+        if (validate()) {
+            fetch('http://localhost:1337/api/users/')
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error('Không thể kiểm tra tài khoản');
+                    }
+                    return res.json();
+                })
+                .then((resp) => {
+                    const foundUser = resp.find(
+                        (user) => user.username === formData.username
+                    );
+    
+                    if (foundUser) {
+                        toast.success("Đăng nhập thành công");
+                        navigate("/home");
+                    } else {
+                        toast.error("Tên đăng nhập không tồn tại");
+                        setFormData({ username: "", password: "" });
+                    }
+                })
+                .catch((err) => {
+                    console.error(err);
+                    toast.error("Đăng nhập thất bại");
+                });
+        }
+    };
+
+    const validate = () => {
+        let result = true;
+        if (!formData.username || !formData.password) {
+            toast.warning("Vui lòng điền đầy đủ thông tin");
+            result = false;
+        }
+        return result;
+    }
+
 
     return (
         <Container className='form-container' style={{ paddingLeft: '0px', paddingRight: '0px' }}> 
+            <ToastContainer />
             <Box className='col-1'>
                 <img src="/public/img/start-illustration.png" alt="Illustration" style={{ width: '90%'}} className='img'/>
             </Box>
@@ -185,9 +225,9 @@ const CreateAccount = () => {
                                 textAlign: 'center',  
                                 marginTop: '10px',          
                             }}>ĐĂNG KÝ</Typography>
-                        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1, marginLeft: 10, marginRight: 10}}>
-                        <TextField
-                            className='input'
+                        <Box component="form" noValidate onSubmit={handleSubmitRegister} sx={{ mt: 1, marginLeft: 10, marginRight: 10}}>
+                        <TextField 
+                            className="red-asterisk"
                             sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
@@ -195,10 +235,10 @@ const CreateAccount = () => {
                             label="Tên đăng nhập"
                             name="username"
                             value={formData.username}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
-                        <TextField
-                            className='input'
+                        <TextField 
+                            className="red-asterisk"
                             sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
@@ -207,16 +247,13 @@ const CreateAccount = () => {
                             name="email"
                             type="email"
                             value={formData.email}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                                 label="Ngày sinh"
                                 value={formData.dateOfBirth}
-                                onChange={(newValue) => setFormData(prev => ({
-                                    ...prev,
-                                    dateOfBirth: newValue
-                                }))}
+                                onChange={(newValue) => setFormData({ ...formData, dateOfBirth: newValue })}
                                 sx={{ width: '100%', marginBottom: '10px' }}
                                 format="DD/MM/YYYY"
                             />
@@ -227,7 +264,7 @@ const CreateAccount = () => {
                             aria-labelledby="gender-radio-buttons-group-label"
                             name="gender"
                             value={formData.gender ? 'true' : 'false'}
-                            onChange={handleGenderChange}
+                            onChange={(e) => setFormData({ ...formData, gender: e.target.value === 'true' })}
                             sx={{ marginBottom: '10px' }}
                         >
                             <FormControlLabel value="false" control={<Radio />} label="Nam" />
@@ -235,7 +272,7 @@ const CreateAccount = () => {
                         </RadioGroup>
 
                         <TextField
-                            className='input'
+                            className="red-asterisk"
                             sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
@@ -243,11 +280,11 @@ const CreateAccount = () => {
                             label="Địa chỉ"
                             name="address"
                             value={formData.address}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
 
                         <TextField
-                            className='input'
+                            className="red-asterisk"
                             sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
@@ -255,11 +292,11 @@ const CreateAccount = () => {
                             label="Số điện thoại"
                             name="phoneNumber"
                             value={formData.phoneNumber}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
 
                         <TextField
-                            className='input'
+                            className="red-asterisk"
                             sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
@@ -268,7 +305,7 @@ const CreateAccount = () => {
                             type={showPassword ? 'text' : 'password'}
                             id="password"
                             value={formData.password}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -284,16 +321,16 @@ const CreateAccount = () => {
                             }} 
                         />
                         <TextField
-                            className='input'
+                            className="red-asterisk"
                             sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
                             name="confirmPassword"
-                            label="Xác nhận mật khẩu"
+                            label="Nhập lại mật khẩu"
                             type={showConfirmPassword ? 'text' : 'password'}
                             id="confirmPassword"
                             value={formData.confirmPassword}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -308,6 +345,8 @@ const CreateAccount = () => {
                                 ),
                             }} 
                         />
+                        {passwordError && <Typography color="error">{passwordError}</Typography>}
+
                             <Button 
                                 type="submit"
                                 fullWidth
@@ -340,8 +379,9 @@ const CreateAccount = () => {
                                 textAlign: 'center',  
                                 marginBottom: '25px',              
                             }}>ĐĂNG NHẬP</Typography>
-                        <Box component="form" noValidate sx={{ mt: 1, marginLeft: 9, marginRight: 9 }}>
-                            <TextField className='input'
+                        <Box component="form" noValidate onSubmit={handleSubmitLogin} sx={{ mt: 1, marginLeft: 9, marginRight: 9 }}>
+                            <TextField 
+                                className="red-asterisk"
                                 margin="normal"
                                 required
                                 fullWidth
@@ -350,8 +390,11 @@ const CreateAccount = () => {
                                 name="username"
                                 autoComplete="username"
                                 autoFocus
+                                value={formData.username}
+                                onChange={handleChange}
                             />
-                            <TextField className='input'
+                            <TextField 
+                                className="red-asterisk"
                                 margin="normal"
                                 required
                                 fullWidth
@@ -360,6 +403,8 @@ const CreateAccount = () => {
                                 type={showPassword ? 'text' : 'password'}
                                 id="password"
                                 autoComplete="current-password"
+                                value={formData.password}
+                                onChange={handleChange}
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
