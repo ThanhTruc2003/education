@@ -1,10 +1,29 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, FormControlLabel, TextField, Typography, Container, Box } from '@mui/material';
+import { Button, Checkbox, FormControlLabel, TextField, Typography, Container, Box, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { RadioGroup, Radio } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 import '../css/CreateAccount.css';
 
 const CreateAccount = () => {
     const [isRegister] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    /*const [dateOfBirth, setDateOfBirth] = useState(null);*/
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        dateOfBirth: null,
+        gender: false,
+        address: '',
+        phoneNumber: ''
+    });
 
     useEffect(() => {
         document.title = "Đăng nhập";
@@ -48,6 +67,75 @@ const CreateAccount = () => {
             registerButton.removeEventListener('click', handleRegisterClick);
         };
     }, [isRegister]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleGenderChange = (e) => {
+        setFormData(prev => ({
+            ...prev,
+            gender: e.target.value === 'true'
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (formData.password !== formData.confirmPassword) {
+            alert('Mật khẩu xác nhận không khớp!');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            alert('Email không hợp lệ!');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:1337/api/auth/local/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password,
+                    dateOfBirth: formData.dateOfBirth ? formData.dateOfBirth.format('YYYY-MM-DD') : null,
+                    gender: formData.gender,
+                    address: formData.address,
+                    phoneNumber: formData.phoneNumber
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Đăng ký thành công!');
+                setFormData({
+                    username: '',
+                    email: '',
+                    password: '',
+                    confirmPassword: '',
+                    dateOfBirth: null,
+                    gender: false,
+                    address: '',
+                    phoneNumber: ''
+                });
+            } else {
+                alert('Đăng ký thất bại: ' + (data.error?.message || 'Đã có lỗi xảy ra'));
+            }
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert('Đã có lỗi xảy ra khi đăng ký');
+        }
+    };
 
     return (
         <Container className='form-container' style={{ paddingLeft: '0px', paddingRight: '0px' }}> 
@@ -95,78 +183,136 @@ const CreateAccount = () => {
                                 fontWeight: 'bold',               
                                 fontSize: '35px',
                                 textAlign: 'center',  
-                                marginBottom: '10px',   
                                 marginTop: '10px',          
                             }}>ĐĂNG KÝ</Typography>
-                        <Box component="form" noValidate sx={{ mt: 1, marginLeft: 10, marginRight: 10}}>
-                        <TextField className='input' sx={{ marginBottom: '10px'}}
+                        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1, marginLeft: 10, marginRight: 10}}>
+                        <TextField
+                            className='input'
+                            sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
                             id="username"
                             label="Tên đăng nhập"
                             name="username"
-                            autoComplete="username"
-                            autoFocus
+                            value={formData.username}
+                            onChange={handleInputChange}
                         />
-                        <TextField className='input' sx={{ marginBottom: '10px'}}
+                        <TextField
+                            className='input'
+                            sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
-                            id="dateOfBirth"
-                            label="Ngày sinh"
-                            name="dateOfBirth"
-                            autoComplete="dateOfBirth"
-                            autoFocus
+                            id="email"
+                            label="Email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
                         />
-                        <TextField className='input' sx={{ marginBottom: '10px'}}
-                            required
-                            fullWidth
-                            id="sex"
-                            label="Giới tính"
-                            name="sex"
-                            autoComplete="sex"
-                            autoFocus
-                        />
-                        <TextField className='input' sx={{ marginBottom: '10px'}}
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                                label="Ngày sinh"
+                                value={formData.dateOfBirth}
+                                onChange={(newValue) => setFormData(prev => ({
+                                    ...prev,
+                                    dateOfBirth: newValue
+                                }))}
+                                sx={{ width: '100%', marginBottom: '10px' }}
+                                format="DD/MM/YYYY"
+                            />
+                        </LocalizationProvider>
+
+                        <RadioGroup
+                            row
+                            aria-labelledby="gender-radio-buttons-group-label"
+                            name="gender"
+                            value={formData.gender ? 'true' : 'false'}
+                            onChange={handleGenderChange}
+                            sx={{ marginBottom: '10px' }}
+                        >
+                            <FormControlLabel value="false" control={<Radio />} label="Nam" />
+                            <FormControlLabel value="true" control={<Radio />} label="Nữ" />
+                        </RadioGroup>
+
+                        <TextField
+                            className='input'
+                            sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
                             id="address"
                             label="Địa chỉ"
                             name="address"
-                            autoComplete="address"
-                            autoFocus
+                            value={formData.address}
+                            onChange={handleInputChange}
                         />
-                        <TextField className='input' sx={{ marginBottom: '10px'}}
+
+                        <TextField
+                            className='input'
+                            sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
                             id="phoneNumber"
                             label="Số điện thoại"
                             name="phoneNumber"
-                            autoComplete="phoneNumber"
-                            autoFocus
+                            value={formData.phoneNumber}
+                            onChange={handleInputChange}
                         />
-                        <TextField className='input' sx={{ marginBottom: '10px'}}
+
+                        <TextField
+                            className='input'
+                            sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
                             name="password"
                             label="Mật khẩu"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             id="password"
-                            autoComplete="current-password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            edge="end"
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }} 
                         />
-                        <TextField className='input' sx={{ marginBottom: '10px'}}
+                        <TextField
+                            className='input'
+                            sx={{ marginBottom: '10px'}}
                             required
                             fullWidth
                             name="confirmPassword"
                             label="Xác nhận mật khẩu"
-                            type="password"
+                            type={showConfirmPassword ? 'text' : 'password'}
                             id="confirmPassword"
-                            autoComplete="confirm-password"
+                            value={formData.confirmPassword}
+                            onChange={handleInputChange}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle confirm password visibility"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            edge="end"
+                                        >
+                                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }} 
                         />
                             <Button 
                                 type="submit"
                                 fullWidth
                                 variant="contained"
-                                sx={{ mt: 2, mb: 2, 
+                                sx={{ margin: "0px", 
                                     background: 'rgba(255, 121, 102, 1)',
                                     color: '#ffffff',
                                     borderRadius: '10px',
@@ -211,9 +357,22 @@ const CreateAccount = () => {
                                 fullWidth
                                 name="password"
                                 label="Mật khẩu"
-                                type="password"
+                                type={showPassword ? 'text' : 'password'}
                                 id="password"
                                 autoComplete="current-password"
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }} 
                             />
                             <Box sx={{ 
                                 display: 'flex', 
