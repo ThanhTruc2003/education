@@ -6,10 +6,14 @@ import '../css/ForgotPassword.css';
 const ForgotPassword = () => {
     useEffect(() => {
         document.title = "Quên mật khẩu";
+        document.body.classList.add('forgotpassword-body');
+
+        return () => {
+            document.body.classList.remove('forgotpassword-body');
+        };
     }, []);
 
-    document.body.classList.add('forgotpassword-body');
-
+   
     const handleForgotPassword = (event) => {
         event.preventDefault();
         // Handle forgot password logic here
@@ -19,7 +23,7 @@ const ForgotPassword = () => {
     return (
         <Container className='form-container' style={{ paddingLeft: '0px', paddingRight: '0px' }}>
              <Box className='col-1'>
-                <img src="/public/img/start-illustration.png" alt="Illustration" style={{ width: '90%'}} className='img'/>
+                <img src="/img/start-illustration.png" alt="Illustration" style={{ width: '90%'}} className='img'/>
             </Box>
 
             <Box className='col-2'>
@@ -33,7 +37,7 @@ const ForgotPassword = () => {
                     }}>QUÊN MẬT KHẨU</Typography>
                 <Box component="form" noValidate sx={{ mt: 1, marginLeft: 9, marginRight: 9}} onSubmit={handleForgotPassword}>
                     <Box textAlign="center" mt={1} mb={5}>
-                        <span style={{ fontFamily: 'sans-serif' }}>Nhập địa chỉ email để lấy lại mật khẩu</span>
+                        <span style={{ fontFamily: 'sans-serif' }}>Nhập tên đăng nhập và địa chỉ email để lấy lại mật khẩu</span>
                     </Box>
                     <TextField 
                         className="red-asterisk"

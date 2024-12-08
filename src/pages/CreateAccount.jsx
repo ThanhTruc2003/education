@@ -31,6 +31,7 @@ const CreateAccount = () => {
     });
 
     const [passwordError, setPasswordError] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
 
     useEffect(() => {
         document.title = "Đăng nhập";
@@ -72,8 +73,22 @@ const CreateAccount = () => {
         return () => {
             loginButton.removeEventListener('click', handleLoginClick);
             registerButton.removeEventListener('click', handleRegisterClick);
+            document.body.classList.remove('create-acount-body');
         };
     }, [isRegister]);
+
+    useEffect(() => {
+        const savedUser = localStorage.getItem('rememberedUser');
+        if (savedUser) {
+            const userData = JSON.parse(savedUser);
+            setFormData(prevData => ({
+                ...prevData,
+                username: userData.username,
+                password: userData.password
+            }));
+            setRememberMe(true);
+        }
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -125,8 +140,10 @@ const CreateAccount = () => {
             });
             const result = await response.json();
             if (response.ok) {
-                toast.success("Đăng ký thành công");
-                setFormData({ username: "", email: "", password: "", confirmPassword: "", dateOfBirth: "", address: "", phoneNumber: "" });
+                navigate("/home");
+                setTimeout(() => {
+                    toast.success("Đăng ký thành công");
+                }, 100);
             } else {
                 toast.error(result.message || "Đăng ký thất bại");
             }
@@ -152,8 +169,18 @@ const CreateAccount = () => {
                     );
     
                     if (foundUser) {
-                        toast.success("Đăng nhập thành công");
+                        if (rememberMe) {
+                            localStorage.setItem('rememberedUser', JSON.stringify({
+                                username: formData.username,
+                                password: formData.password
+                            }));
+                        } else {
+                            localStorage.removeItem('rememberedUser');
+                        }
                         navigate("/home");
+                        setTimeout(() => {
+                            toast.success("Đăng nhập thành công");
+                        }, 100);
                     } else {
                         toast.error("Tên đăng nhập không tồn tại");
                         setFormData({ username: "", password: "" });
@@ -179,8 +206,9 @@ const CreateAccount = () => {
     return (
         <Container className='form-container' style={{ paddingLeft: '0px', paddingRight: '0px' }}> 
             <ToastContainer />
+            
             <Box className='col-1'>
-                <img src="/public/img/start-illustration.png" alt="Illustration" style={{ width: '90%'}} className='img'/>
+                <img src="/img/start-illustration.png" alt="Illustration" style={{ width: '90%'}} className='img'/>
             </Box>
 
             <Box className='col-2'>
@@ -426,8 +454,14 @@ const CreateAccount = () => {
                                 mt: 2,  
                             }}>
                                 <FormControlLabel
-                                    control={<Checkbox value="remember" color="primary" />}
-                                    label="Tự động đăng nhập"
+                                    control={
+                                        <Checkbox 
+                                            checked={rememberMe}
+                                            onChange={(e) => setRememberMe(e.target.checked)}
+                                            color="primary" 
+                                        />
+                                    }
+                                    label="Nhớ mật khẩu"
                                     sx={{ flexGrow: 1 }}
                                 />
                                 <Link to="/quen-mat-khau" style={{ textDecoration: 'none', fontFamily: 'sans-serif'}}>Quên mật khẩu?</Link>

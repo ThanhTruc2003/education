@@ -56,7 +56,7 @@ h6,
 .display-5,
 .display-6 {
     font-weight: 700;
-    font-family: 'Fredoka', sans-serif;
+    font-family: 'Arial', sans-serif;
 }
 
 .display-4,
@@ -124,7 +124,7 @@ h6,
 }
 
 .img-border-radius {
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 5%;
 }
 
 .title-border-radius {
@@ -196,8 +196,8 @@ h6,
         display: block;
         visibility: hidden;
         top: 100%;
-        font-weight: 400;
-        font-family: 'Fredoka', sans-serif;
+        font-weight: 600;
+        font-family: 'Arial', sans-serif;
         transform: rotateX(-75deg);
         transform-origin: 0% 0%;
         border: 0;
@@ -247,6 +247,21 @@ h6,
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 10px;
+}
+
+.image {
+    position: relative;
+    height: 100%;
+    min-height: 400px;
+    background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)), url(../img/imageLeft.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 10px;
+}
+
+.image.border {
+    border-radius: 50% 20% / 10% 40%;
 }
 
 .video .btn-play {
@@ -444,7 +459,6 @@ h6,
 
 .program .program-item .program-img .program-rate {
     position: absolute;
-    width: 100px; 
     top: -20px; 
     left: 50%; 
     margin-left: -50px; 
