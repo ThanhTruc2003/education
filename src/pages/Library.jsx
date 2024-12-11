@@ -33,21 +33,28 @@ const Library = () => {
         
         const organizedCategories = mainCategories.map(mainCat => ({
           ...mainCat,
-          children: categoriesData.filter(cat => {
-            if (mainCat.name === 'Tiểu học') {
-              return ['Lớp 3', 'Lớp 4', 'Lớp 5'].includes(cat.name);
-            } else if (mainCat.name === 'THCS') {
-              return ['Lớp 6', 'Lớp 7', 'Lớp 8', 'Lớp 9'].includes(cat.name);
-            } else if (mainCat.name === 'THPT') {
-              return ['Lớp 10', 'Lớp 11', 'Lớp 12'].includes(cat.name);
-            }
-            return false;
-          }).map(gradeCat => ({
-            ...gradeCat,
-            subCategories: categoriesData.filter(cat => 
-              ['Sách giáo khoa', 'Đề thi tham khảo'].includes(cat.name)
-            )
-          }))
+          children: categoriesData
+            .filter(cat => {
+              if (mainCat.name === 'Tiểu học') {
+                return ['Lớp 3', 'Lớp 4', 'Lớp 5'].includes(cat.name);
+              } else if (mainCat.name === 'THCS') {
+                return ['Lớp 6', 'Lớp 7', 'Lớp 8', 'Lớp 9'].includes(cat.name);
+              } else if (mainCat.name === 'THPT') {
+                return ['Lớp 10', 'Lớp 11', 'Lớp 12'].includes(cat.name);
+              }
+              return false;
+            })
+            .sort((a, b) => {
+              // Lấy số lớp từ tên (ví dụ: "Lớp 3" -> 3)
+              const getGradeNumber = (name) => parseInt(name.replace('Lớp ', ''));
+              return getGradeNumber(a.name) - getGradeNumber(b.name);
+            })
+            .map(gradeCat => ({
+              ...gradeCat,
+              subCategories: categoriesData.filter(cat => 
+                ['Sách giáo khoa', 'Đề thi tham khảo'].includes(cat.name)
+              )
+            }))
         }));
 
         setCategories(organizedCategories);
@@ -78,7 +85,6 @@ const Library = () => {
         }
         
         const data = await response.json();
-        console.log('Dữ liệu sách lớp 3:', data.data[0]);
         setGrade3Books(data.data);
         
       } catch (error) {
@@ -102,20 +108,31 @@ const Library = () => {
     setSelectedContent(content);
   };
 
-  const handleReadOnline = (pdfPath) => {
-    setSelectedPdf(pdfPath);
+  const handleReadOnline = (pdfUrl) => {
+    const fullPdfUrl = `http://localhost:1337${pdfUrl}`;
+    const viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullPdfUrl)}`;
+    setSelectedPdf(viewerUrl);
     setShowPdf(true);
   };
 
-  const handleDownload = (pdfPath, fileName) => {
-    const link = document.createElement('a');
-    link.href = pdfPath;
-    link.download = fileName;
-    
-    document.body.appendChild(link);
-    link.click();
-    
-    document.body.removeChild(link);
+  const handleDownload = (pdfUrl, fileName) => {
+    // Tải file trực tiếp bằng fetch
+    fetch(pdfUrl)
+      .then(response => response.blob())
+      .then(blob => {
+        // Tạo URL từ blob
+        const url = window.URL.createObjectURL(blob);
+        // Tạo thẻ a và tự động click
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName; // Sử dụng tên file được truyền vào hoặc mặc định
+        document.body.appendChild(link);
+        link.click();
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      })
+      .catch(err => console.error('Lỗi khi tải file:', err));
   };
 
   useEffect(() => {
@@ -298,35 +315,25 @@ const Library = () => {
                                                         <div key={book.id} className="col-md-4">
                                                             <div className="text-center">
                                                                 <img 
-                                                                    src={book.attributes?.imageDocument?.[0]?.url 
-                                                                        ? `http://localhost:1337${book.attributes.imageDocument[0].url}`
-                                                                        : '/img/default-book.jpg'
-                                                                    } 
-                                                                    alt={book.attributes?.name || 'Sách giáo khoa'} 
+                                                                    src={`http://localhost:1337${book?.imageDocument?.[0]?.url }`} 
+                                                                    alt={book?.name || 'Sách giáo khoa'} 
                                                                     className="img-fluid mb-3 book-image"
                                                                 />
+                                                                <p className="pw-bold">{book?.name}</p>
                                                                 <h6 className="fw-bold mb-3">{book.attributes?.name}</h6>
                                                                 <div className="d-flex justify-content-center gap-2">
                                                                     <button 
                                                                         className="btn btn-primary"
-                                                                        onClick={() => handleReadOnline(
-                                                                            book.attributes?.filePDF?.[0]?.url 
-                                                                                ? `http://localhost:1337${book.attributes.filePDF[0].url}`
-                                                                                : '#'
-                                                                        )}
-                                                                        disabled={!book.attributes?.filePDF?.[0]?.url}
+                                                                        onClick={() => handleReadOnline(book?.filePDF?.[0]?.url)}
                                                                     >
                                                                         <i className="fas fa-book-reader me-2"></i>Đọc online
                                                                     </button>
                                                                     <button 
                                                                         className="btn btn-secondary"
                                                                         onClick={() => handleDownload(
-                                                                            book.attributes?.filePDF?.[0]?.url 
-                                                                                ? `http://localhost:1337${book.attributes.filePDF[0].url}`
-                                                                                : '#',
-                                                                            book.attributes?.filePDF?.[0]?.name || 'document.pdf'
+                                                                            `http://localhost:1337${book?.filePDF?.[0]?.url}`,
+                                                                            book?.name
                                                                         )}
-                                                                        disabled={!book.attributes?.filePDF?.[0]?.url}
                                                                     >
                                                                         <i className="fas fa-download me-2"></i>Tải xuống
                                                                     </button>
@@ -343,13 +350,14 @@ const Library = () => {
                                                     >
                                                         <i className="fas fa-arrow-left me-2"></i>Quay lại
                                                     </button>
-                                                    <div style={{height: "800px"}}>
+                                                    <div style={{height: "693px"}}>
                                                         <iframe
                                                             src={selectedPdf}
                                                             width="100%"
                                                             height="100%"
                                                             style={{border: "none"}}
                                                             title="PDF Viewer"
+                                                            allowFullScreen
                                                         />
                                                     </div>
                                                 </div>
