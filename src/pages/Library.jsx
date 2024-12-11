@@ -1,9 +1,125 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Library = () => {
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedClass, setExpandedClass] = useState(null);
+  const [selectedContent, setSelectedContent] = useState(null);
+  const [showPdf, setShowPdf] = useState(false);
+  const [selectedPdf, setSelectedPdf] = useState('');
+  const [grade3Books, setGrade3Books] = useState([]);
+  const [isLoadingBooks, setIsLoadingBooks] = useState(false);
+  const [errorBooks, setErrorBooks] = useState(null);
+
   useEffect(() => {
-    document.title = "Thư viện học tập";
+    const fetchCategories = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const response = await fetch('http://localhost:1337/api/document-categories');
+        if (!response.ok) {
+          throw new Error('Không thể tải dữ liệu');
+        }
+        const data = await response.json();
+        const categoriesData = data.data;
+        
+        // Tổ chức lại dữ liệu thành cấu trúc phân cấp
+        const mainCategories = categoriesData.filter(cat => 
+          ['Tiểu học', 'THCS', 'THPT'].includes(cat.name)
+        );
+        
+        const organizedCategories = mainCategories.map(mainCat => ({
+          ...mainCat,
+          children: categoriesData.filter(cat => {
+            if (mainCat.name === 'Tiểu học') {
+              return ['Lớp 3', 'Lớp 4', 'Lớp 5'].includes(cat.name);
+            } else if (mainCat.name === 'THCS') {
+              return ['Lớp 6', 'Lớp 7', 'Lớp 8', 'Lớp 9'].includes(cat.name);
+            } else if (mainCat.name === 'THPT') {
+              return ['Lớp 10', 'Lớp 11', 'Lớp 12'].includes(cat.name);
+            }
+            return false;
+          }).map(gradeCat => ({
+            ...gradeCat,
+            subCategories: categoriesData.filter(cat => 
+              ['Sách giáo khoa', 'Đề thi tham khảo'].includes(cat.name)
+            )
+          }))
+        }));
+
+        setCategories(organizedCategories);
+      } catch (error) {
+        setError('Không thể tải danh mục. Vui lòng thử lại sau.');
+        console.error('Lỗi khi tải danh mục:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchGrade3Books = async () => {
+      try {
+        setIsLoadingBooks(true);
+        setErrorBooks(null);
+        
+        // Sửa lại câu truy vấn theo yêu cầu mới
+        const response = await fetch(
+          'http://localhost:1337/api/docs?filters[document_categories][name][$eq]=Lớp 3&filters[document_categories][name][$eq]=Sách giáo khoa&populate=imageDocument&populate=filePDF'
+        );
+        
+        if (!response.ok) {
+          throw new Error('Không thể tải dữ liệu sách');
+        }
+        
+        const data = await response.json();
+        console.log('Dữ liệu sách lớp 3:', data);
+        setGrade3Books(data.data);
+        
+      } catch (error) {
+        setErrorBooks('Không thể tải dữ liệu sách. Vui lòng thử lại sau.');
+        console.error('Lỗi khi tải dữ liệu sách:', error);
+      } finally {
+        setIsLoadingBooks(false);
+      }
+    };
+
+    fetchGrade3Books();
+  }, []);
+
+  const toggleExpand = (event, className) => {
+    event.preventDefault();
+    setExpandedClass(expandedClass === className ? null : className);
+  };
+
+  const handleContentSelect = (event, content) => {
+    event.preventDefault();
+    setSelectedContent(content);
+  };
+
+  const handleReadOnline = (pdfPath) => {
+    setSelectedPdf(pdfPath);
+    setShowPdf(true);
+  };
+
+  const handleDownload = (pdfPath, fileName) => {
+    const link = document.createElement('a');
+    link.href = pdfPath;
+    link.download = fileName;
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    document.body.removeChild(link);
+  };
+
+  useEffect(() => {
+    document.title = "Thư viện";
   }, []);
 
   return (
@@ -97,101 +213,196 @@ const Library = () => {
         </div>
 
 
-        <div className="container-fluid program  py-5">
+        <div className="container-fluid program py-5">
             <div className="container py-5">
-                {/* <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{ maxWidth: "700px" }}>
-                    <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Our Programs</h4>
-                    <h1 className="mb-5 display-3">We Offer An Exclusive Program For Kids</h1>
-                </div>
-                <div className="row g-5 justify-content-center">
-                    <div className="col-md-6 col-lg-6 col-xl-4 wow fadeIn" data-wow-delay="0.1s">
-                        <div className="program-item rounded">
-                            <div className="program-img position-relative">
-                                <div className="overflow-hidden img-border-radius">
-                                    <img src="img/library-1.jpg" className="img-fluid w-100" alt="Image"></img>
+                <div className="row">
+                    {/* Sidebar */}
+                    <div className="col-lg-3 wow fadeIn" data-wow-delay="0.1s">
+                        <div className="sidebar bg-light p-4 rounded border border-2 border-primary">
+                            <h4 className="text-white mb-4 pb-2 border-bottom border-primary bg-primary p-2 rounded" style={{textAlign: "center"}}>
+                                Danh mục tài liệu
+                            </h4>
+                            
+                            {isLoading ? (
+                                <div className="text-center">
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Đang tải...</span>
+                                    </div>
                                 </div>
-                                <div className="px-4 py-2 bg-primary text-white program-rate">$60.99</div>
-                            </div>
-                            <div className="program-text bg-white px-4 pb-3">
-                                <div className="program-text-inner">
-                                    <a href="#" className="h4">English For Today</a>
-                                    <p className="mt-3 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed purus consectetur,</p>
-                                </div>
-                            </div>
-                            <div className="program-teacher d-flex align-items-center border-top border-primary bg-white px-4 py-3">
-                                <img src="img/library-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="Image" style={{ width: "70px", height: "70px" }}></img>
-                                <div className="ms-3">
-                                    <h6 className="mb-0 text-primary">Mary Mordern</h6>
-                                    <small>Arts Designer</small>
-                                </div>
-                            </div>
-                            <div className="d-flex justify-content-between px-4 py-2 bg-primary rounded-bottom">
-                                <small className="text-white"><i className="fas fa-wheelchair me-1"></i> 30 Sits</small>
-                                <small className="text-white"><i className="fas fa-book me-1"></i> 11 Lessons</small>
-                                <small className="text-white"><i className="fas fa-clock me-1"></i> 60 Hours</small>
-                            </div>
+                            ) : error ? (
+                                <div className="alert alert-danger">{error}</div>
+                            ) : (
+                                categories.map((mainCategory) => (
+                                    <div key={mainCategory.id} className="mb-4 wow fadeIn" data-wow-delay="0.2s">
+                                        <h5 className="border-bottom border-secondary pb-2">{mainCategory.name}</h5>
+                                        <div className="nav flex-column">
+                                            {mainCategory.children.map((grade) => (
+                                                <div key={grade.id}>
+                                                    <a
+                                                        href=""
+                                                        className="nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg"
+                                                        onClick={(event) => toggleExpand(event, grade.documentId)}
+                                                    >
+                                                        {grade.name}
+                                                        <i
+                                                            className={`fas ${
+                                                                expandedClass === grade.documentId ? "fa-angle-down" : "fa-angle-right"
+                                                            } ms-2`}
+                                                        ></i>
+                                                    </a>
+                                                    {expandedClass === grade.documentId && (
+                                                        <div className="nav flex-column ps-4">
+                                                            {grade.subCategories.map((subCat) => (
+                                                                <a
+                                                                    key={subCat.id}
+                                                                    href="#"
+                                                                    className={`nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg ${
+                                                                        selectedContent === `${subCat.documentId}_${grade.documentId}` ? "active-link" : ""
+                                                                    }`}
+                                                                    onClick={(event) => handleContentSelect(event, `${subCat.documentId}_${grade.documentId}`)}
+                                                                >
+                                                                    {subCat.name}
+                                                                </a>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
-                    <div className="col-md-6 col-lg-6 col-xl-4 wow fadeIn" data-wow-delay="0.3s">
-                        <div className="program-item rounded">
-                            <div className="program-img position-relative">
-                                <div className="overflow-hidden img-border-radius">
-                                    <img src="img/library-2.jpg" className="img-fluid w-100" alt="Image"></img>
-                                </div>
-                                <div className="px-4 py-2 bg-primary text-white program-rate">$60.99</div>
-                            </div>
-                            <div className="program-text bg-white px-4 pb-3">
-                                <div className="program-text-inner">
-                                    <a href="#" className="h4">Graphics Arts</a>
-                                    <p className="mt-3 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed purus consectetur,</p>
-                                </div>
-                            </div>
-                            <div className="program-teacher d-flex align-items-center border-top border-primary bg-white px-4 py-3">
-                                <img src="img/library-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="" style={{ width: "70px", height: "70px" }}></img>
-                                <div className="ms-3">
-                                    <h6 className="mb-0 text-primary">Mary Mordern</h6>
-                                    <small>Arts Designer</small>
-                                </div>
-                            </div>
-                            <div className="d-flex justify-content-between px-4 py-2 bg-primary rounded-bottom">
-                                <small className="text-white"><i className="fas fa-wheelchair me-1"></i> 30 Sits</small>
-                                <small className="text-white"><i className="fas fa-book me-1"></i> 11 Lessons</small>
-                                <small className="text-white"><i className="fas fa-clock me-1"></i> 60 Hours</small>
-                            </div>
+
+                    {/* Nội dung chính */}
+                    <div className="col-lg-9 wow fadeIn" data-wow-delay="0.5s">
+                        <div className="bg-light p-4 rounded border border-2 border-primary">
+                            <h4 className="text-primary mb-4 pb-2 border-bottom border-primary">Tài liệu học tập</h4>
+                            {selectedContent ? (
+                                <>
+                                    {selectedContent === "sachGiaoKhoaLop3" && (
+                                        <div>
+                                            <h5 style={{marginBottom: "20px"}}>Sách giáo khoa Tin học lớp 3</h5>
+                                            {isLoadingBooks ? (
+                                                <div className="text-center">
+                                                    <div className="spinner-border text-primary" role="status">
+                                                        <span className="visually-hidden">Đang tải...</span>
+                                                    </div>
+                                                </div>
+                                            ) : errorBooks ? (
+                                                <div className="alert alert-danger">{errorBooks}</div>
+                                            ) : !showPdf ? (
+                                                <div className="row g-4">
+                                                    {grade3Books.map((book) => (
+                                                        <div key={book.id} className="col-md-4">
+                                                            <div className="text-center">
+                                                                <img 
+                                                                    src={`http://localhost:1337${book.attributes.imageDocument[0]?.url}`} 
+                                                                    alt={book.attributes.name} 
+                                                                    className="img-fluid mb-3 book-image"
+                                                                    style={{maxHeight: "300px", width: "auto"}} 
+                                                                />
+                                                                <h6 className="fw-bold mb-3">{book.attributes.name}</h6>
+                                                                <div className="d-flex justify-content-center gap-2">
+                                                                    <button 
+                                                                        className="btn btn-primary"
+                                                                        onClick={() => handleReadOnline(`http://localhost:1337${book.attributes.filePDF[0]?.url}`)}
+                                                                    >
+                                                                        <i className="fas fa-book-reader me-2"></i>Đọc online
+                                                                    </button>
+                                                                    <button 
+                                                                        className="btn btn-secondary"
+                                                                        onClick={() => handleDownload(
+                                                                            `http://localhost:1337${book.attributes.filePDF[0]?.url}`, 
+                                                                            book.attributes.filePDF[0]?.name
+                                                                        )}
+                                                                    >
+                                                                        <i className="fas fa-download me-2"></i>Tải xuống
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <button 
+                                                        className="btn btn-secondary mb-3"
+                                                        onClick={() => setShowPdf(false)}
+                                                    >
+                                                        <i className="fas fa-arrow-left me-2"></i>Quay lại
+                                                    </button>
+                                                    <div style={{height: "800px"}}>
+                                                        <iframe
+                                                            src={selectedPdf}
+                                                            width="100%"
+                                                            height="100%"
+                                                            style={{border: "none"}}
+                                                            title="PDF Viewer"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {selectedContent === "sachGiaoKhoaLop4" && (
+                                        <div>
+                                            <h5 style={{marginBottom: "20px"}}>Sách giáo khoa Tin học lớp 4</h5>
+                                            <div className="d-flex justify-content-between">
+                                                <div className="text-center">
+                                                    <img src="img/SGK-TH-4-CD.jpg" alt="Cánh diều" className="img-fluid mb-2 book-image" />
+                                                    <p>Cánh diều</p>
+                                                    <button className="btn btn-primary me-2">Đọc online</button>
+                                                    <button className="btn btn-secondary">Tải xuống</button>
+                                                </div>
+                                                <div className="text-center">
+                                                    <img src="img/SGK-TH-4-KNTT.jpg" alt="Kết nối tri thức & cuộc sống" className="img-fluid mb-2 book-image" />
+                                                    <p>Kết nối tri thức & cuộc sống</p>
+                                                    <button className="btn btn-primary me-2">Đọc online</button>
+                                                    <button className="btn btn-secondary">Tải xuống</button>
+                                                </div>
+                                                <div className="text-center">
+                                                    <img src="img/SGK-TH-4-CTST.jpg" alt="Chân trời sáng tạo" className="img-fluid mb-2 book-image" />
+                                                    <p>Chân trời sáng tạo</p>
+                                                    <button className="btn btn-primary me-2">Đọc online</button>
+                                                    <button className="btn btn-secondary">Tải xuống</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {selectedContent === "sachGiaoKhoaLop5" && (
+                                        <div>
+                                            <h5 style={{marginBottom: "20px"}}>Sách giáo khoa Tin học lớp 5</h5>
+                                            <div className="d-flex justify-content-between">
+                                                <div className="text-center">
+                                                    <img src="img/SGK-TH-5-CD.jpg" alt="Cánh diều" className="img-fluid mb-2 book-image" />
+                                                    <p>Cánh diều</p>
+                                                    <button className="btn btn-primary me-2">Đọc online</button>
+                                                    <button className="btn btn-secondary">Tải xuống</button>
+                                                </div>
+                                                <div className="text-center">
+                                                    <img src="img/SGK-TH-5-KNTT.jpg" alt="Kết nối tri thức & cuộc sống" className="img-fluid mb-2 book-image" />
+                                                    <p>Kết nối tri thức & cuộc sống</p>
+                                                    <button className="btn btn-primary me-2">Đọc online</button>
+                                                    <button className="btn btn-secondary">Tải xuống</button>
+                                                </div>
+                                                <div className="text-center">
+                                                    <img src="img/SGK-TH-5-CTST.jpg" alt="Chân trời sáng tạo" className="img-fluid mb-2 book-image" />
+                                                    <p>Chân trời sáng tạo</p>
+                                                    <button className="btn btn-primary me-2">Đọc online</button>
+                                                    <button className="btn btn-secondary">Tải xuống</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <p>Vui lòng chọn lớp ở danh mục bên trái để xem tài liệu.</p>
+                            )}
                         </div>
                     </div>
-                    <div className="col-md-6 col-lg-6 col-xl-4 wow fadeIn" data-wow-delay="0.5s">
-                        <div className="program-item rounded">
-                            <div className="program-img position-relative">
-                                <div className="overflow-hidden img-border-radius">
-                                    <img src="img/library-3.jpg" className="img-fluid w-100" alt="Image"></img>
-                                </div>
-                                <div className="px-4 py-2 bg-primary text-white program-rate">$60.99</div>
-                            </div>
-                            <div className="program-text bg-white px-4 pb-3">
-                                <div className="program-text-inner">
-                                    <a href="#" className="h4">General Science</a>
-                                    <p className="mt-3 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed purus consectetur,</p>
-                                </div>
-                            </div>
-                            <div className="program-teacher d-flex align-items-center border-top border-primary bg-white px-4 py-3">
-                                <img src="img/library-teacher.jpg" className="img-fluid rounded-circle p-2 border border-primary bg-white" alt="" style={{ width: "70px", height: "70px" }}></img>
-                                <div className="ms-3">
-                                    <h6 className="mb-0 text-primary">Mary Mordern</h6>
-                                    <small>Arts Designer</small>
-                                </div>
-                            </div>
-                            <div className="d-flex justify-content-between px-4 py-2 bg-primary rounded-bottom">
-                                <small className="text-white"><i className="fas fa-wheelchair me-1"></i> 30 Sits</small>
-                                <small className="text-white"><i className="fas fa-book me-1"></i> 11 Lessons</small>
-                                <small className="text-white"><i className="fas fa-clock me-1"></i> 60 Hours</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="d-inline-block text-center wow fadeIn" data-wow-delay="0.1s">
-                        <a href="#" className="btn btn-primary px-5 py-3 text-white btn-border-radius">Vew All Programs</a>
-                    </div>
-                </div>  */}
+                </div> 
             </div>
         </div>
 
@@ -204,7 +415,7 @@ const Library = () => {
                             <h2 className="fw-bold mb-3"><span className="text-primary mb-0">Elear</span><span className="text-secondary">ning</span></h2>
                             <p className="mb-4" style={{width: "600px"}}>
                                 Elearning là một trải nghiệm học tập tuyệt vời, cung cấp những khóa học online chất lượng cao cho học sinh tiểu học, THCS và THPT. 
-                                Với sự giảng dạy chuyên môn của các giáo viên cùng phương pháp học tập cá nhân hóa và sự hỗ trợ của công nghệ giúp các em luôn hào
+                                Với sự giảng dạy tận tâm của các giáo viên cùng phương pháp học tập cá nhân hóa và sự hỗ trợ của công nghệ giúp các em luôn hào
                                 hứng trong việc học tập, nắm chắc được vấn đề từ đó hiểu sâu nhớ lâu và học thật tốt chương trình trên lớp cũng như đạt kết quả cao
                                 trong các kỳ thi.</p>
                         </div>

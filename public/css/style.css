@@ -1,3 +1,32 @@
+.active-link {
+    background-color: #ffa4c0;
+    color: white !important;
+    font-weight: bold;
+}
+
+.book-image {
+    width: 300px; /* Đặt kích thước cố định cho hình ảnh */
+    height: 400px; /* Đặt kích thước cố định cho hình ảnh */
+    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+}
+
+.hover-bg:hover {
+    background-color: #ffa4c0 !important; /* Màu primary của Bootstrap */
+    color: white !important;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.hover-bg.active {
+    background-color: #ffa4c0 !important;
+    color: white !important;
+    border-radius: 4px;
+}
+
+.nav-link:hover {
+    transform: translateX(5px);
+    transition: transform 0.3s ease;
+}
 
 /*** Spinner Start ***/
 #spinner {

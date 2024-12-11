@@ -40,7 +40,7 @@ const Contact = () => {
                             </div>
                             <a href="/about" className="nav-item nav-link">Giới thiệu</a>
                             <a href="/service" className="nav-item nav-link">Góc ôn luyện</a>
-                            <a href="/program" className="nav-item nav-link">Thư viện</a>
+                            <a href="/library" className="nav-item nav-link">Thư viện</a>
                             <a href="/contact" className="nav-item nav-link">Liên hệ</a>
                         </div>
                         
@@ -137,7 +137,7 @@ const Contact = () => {
                         <div className="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
                             <div className="border border-primary rounded">
                                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d501715.500659255!2d106.35552640622468!3d10.761253727966677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752eefdb25d923%3A0x4bcf54ddca2b7214!2zSOG7kyBDaMOtIE1pbmgsIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1733666569610!5m2!1svi!2s" 
-                                className="w-100 h-100 rounded" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                className="w-100 rounded" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                             </div>
                         </div>
                     </div>
@@ -154,7 +154,7 @@ const Contact = () => {
                             <h2 className="fw-bold mb-3"><span className="text-primary mb-0">Elear</span><span className="text-secondary">ning</span></h2>
                             <p className="mb-4" style={{width: "600px"}}>
                                 Elearning là một trải nghiệm học tập tuyệt vời, cung cấp những khóa học online chất lượng cao cho học sinh tiểu học, THCS và THPT. 
-                                Với sự giảng dạy chuyên môn của các giáo viên cùng phương pháp học tập cá nhân hóa và sự hỗ trợ của công nghệ giúp các em luôn hào
+                                Với sự giảng dạy tận tâm của các giáo viên cùng phương pháp học tập cá nhân hóa và sự hỗ trợ của công nghệ giúp các em luôn hào
                                 hứng trong việc học tập, nắm chắc được vấn đề từ đó hiểu sâu nhớ lâu và học thật tốt chương trình trên lớp cũng như đạt kết quả cao
                                 trong các kỳ thi.</p>
                         </div>

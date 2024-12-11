@@ -328,67 +328,6 @@ const Home = () => {
             </div>
         </div>
 
-        <div className="container-fluid team py-5">
-            <div className="container py-5">
-                <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{
-                    maxWidth: "600px"
-                }}>
-                    <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Đội ngũ giáo viên</h4>
-                    <h1 className="mb-5 display-3">Các giáo viên nhiều kinh nghiệm của chúng tôi</h1>
-                </div>
-                <div className="row g-5 justify-content-center">
-                    <div className="col-md-6 col-lg-4 col-xl-3 wow fadeIn" data-wow-delay="0.1s">
-                        <div className="team-item border border-primary img-border-radius overflow-hidden">
-                            <img src="img/team-1.jpg" className="img-fluid w-101" alt=""/>
-                            <div className="team-icon d-flex align-items-center justify-content-center">
-                                <a className="share btn btn-primary btn-md-square text-white rounded-circle me-3" href=""><i className="fas fa-share-alt"></i></a>
-                            </div>
-                            <div className="team-content text-center py-3">
-                                <h4 className="text-primary">Linda Carlson</h4>
-                                <p className="text-muted mb-2">Giáo viên tin học</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-6 col-lg-4 col-xl-3 wow fadeIn" data-wow-delay="0.3s">
-                        <div className="team-item border border-primary img-border-radius overflow-hidden">
-                            <img src="img/team-2.jpg" className="img-fluid w-101" alt=""/>
-                            <div className="team-icon d-flex align-items-center justify-content-center">
-                                <a className="share btn btn-primary btn-md-square text-white rounded-circle me-3" href=""><i className="fas fa-share-alt"></i></a>
-                            </div>
-                            <div className="team-content text-center py-3">
-                                <h4 className="text-primary">Linda Carlson</h4>
-                                <p className="text-muted mb-2">Giáo viên tin học</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-6 col-lg-4 col-xl-3 wow fadeIn" data-wow-delay="0.5s">
-                        <div className="team-item border border-primary img-border-radius overflow-hidden">
-                            <img src="img/team-3.jpg" className="img-fluid w-101" alt=""/>
-                            <div className="team-icon d-flex align-items-center justify-content-center">
-                                <a className="share btn btn-primary btn-md-square text-white rounded-circle me-3" href=""><i className="fas fa-share-alt"></i></a>
-                            </div>
-                            <div className="team-content text-center py-3">
-                                <h4 className="text-primary">Linda Carlson</h4>
-                                <p className="text-muted mb-2">Giáo viên tin học</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-6 col-lg-4 col-xl-3 wow fadeIn" data-wow-delay="0.7s">
-                        <div className="team-item border border-primary img-border-radius overflow-hidden">
-                            <img src="img/team-4.jpg" className="img-fluid w-101" alt=""/>
-                            <div className="team-icon d-flex align-items-center justify-content-center">
-                                <a className="share btn btn-primary btn-md-square text-white rounded-circle me-3" href=""><i className="fas fa-share-alt"></i></a>
-                            </div>
-                            <div className="team-content text-center py-3">
-                                <h4 className="text-primary">Linda Carlson</h4>
-                                <p className="text-muted mb-2">Giáo viên tin học</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div className="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.1s">
             <div className="container py-5">
                 <div className="row1 g-5">
@@ -397,7 +336,7 @@ const Home = () => {
                             <h2 className="fw-bold mb-3"><span className="text-primary mb-0">Elear</span><span className="text-secondary">ning</span></h2>
                             <p className="mb-4" style={{width: "600px"}}>
                                 Elearning là một trải nghiệm học tập tuyệt vời, cung cấp những khóa học online chất lượng cao cho học sinh tiểu học, THCS và THPT. 
-                                Với sự giảng dạy chuyên môn của các giáo viên cùng phương pháp học tập cá nhân hóa và sự hỗ trợ của công nghệ giúp các em luôn hào
+                                Với sự giảng dạy tận tâm của các giáo viên cùng phương pháp học tập cá nhân hóa và sự hỗ trợ của công nghệ giúp các em luôn hào
                                 hứng trong việc học tập, nắm chắc được vấn đề từ đó hiểu sâu nhớ lâu và học thật tốt chương trình trên lớp cũng như đạt kết quả cao
                                 trong các kỳ thi.</p>
                         </div>
