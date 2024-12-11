@@ -78,7 +78,7 @@ const Library = () => {
         }
         
         const data = await response.json();
-        console.log('Dữ liệu sách lớp 3:', data);
+        console.log('Dữ liệu sách lớp 3:', data.data[0]);
         setGrade3Books(data.data);
         
       } catch (error) {
@@ -257,9 +257,9 @@ const Library = () => {
                                                                     key={subCat.id}
                                                                     href="#"
                                                                     className={`nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg ${
-                                                                        selectedContent === `${subCat.documentId}_${grade.documentId}` ? "active-link" : ""
+                                                                        selectedContent === `${grade.name}_${subCat.name}` ? "active-link" : ""
                                                                     }`}
-                                                                    onClick={(event) => handleContentSelect(event, `${subCat.documentId}_${grade.documentId}`)}
+                                                                    onClick={(event) => handleContentSelect(event, `${grade.name}_${subCat.name}`)}
                                                                 >
                                                                     {subCat.name}
                                                                 </a>
@@ -281,7 +281,7 @@ const Library = () => {
                             <h4 className="text-primary mb-4 pb-2 border-bottom border-primary">Tài liệu học tập</h4>
                             {selectedContent ? (
                                 <>
-                                    {selectedContent === "sachGiaoKhoaLop3" && (
+                                    {selectedContent === "Lớp 3_Sách giáo khoa" && (
                                         <div>
                                             <h5 style={{marginBottom: "20px"}}>Sách giáo khoa Tin học lớp 3</h5>
                                             {isLoadingBooks ? (
@@ -298,25 +298,35 @@ const Library = () => {
                                                         <div key={book.id} className="col-md-4">
                                                             <div className="text-center">
                                                                 <img 
-                                                                    src={`http://localhost:1337${book.attributes.imageDocument[0]?.url}`} 
-                                                                    alt={book.attributes.name} 
+                                                                    src={book.attributes?.imageDocument?.[0]?.url 
+                                                                        ? `http://localhost:1337${book.attributes.imageDocument[0].url}`
+                                                                        : '/img/default-book.jpg'
+                                                                    } 
+                                                                    alt={book.attributes?.name || 'Sách giáo khoa'} 
                                                                     className="img-fluid mb-3 book-image"
-                                                                    style={{maxHeight: "300px", width: "auto"}} 
                                                                 />
-                                                                <h6 className="fw-bold mb-3">{book.attributes.name}</h6>
+                                                                <h6 className="fw-bold mb-3">{book.attributes?.name}</h6>
                                                                 <div className="d-flex justify-content-center gap-2">
                                                                     <button 
                                                                         className="btn btn-primary"
-                                                                        onClick={() => handleReadOnline(`http://localhost:1337${book.attributes.filePDF[0]?.url}`)}
+                                                                        onClick={() => handleReadOnline(
+                                                                            book.attributes?.filePDF?.[0]?.url 
+                                                                                ? `http://localhost:1337${book.attributes.filePDF[0].url}`
+                                                                                : '#'
+                                                                        )}
+                                                                        disabled={!book.attributes?.filePDF?.[0]?.url}
                                                                     >
                                                                         <i className="fas fa-book-reader me-2"></i>Đọc online
                                                                     </button>
                                                                     <button 
                                                                         className="btn btn-secondary"
                                                                         onClick={() => handleDownload(
-                                                                            `http://localhost:1337${book.attributes.filePDF[0]?.url}`, 
-                                                                            book.attributes.filePDF[0]?.name
+                                                                            book.attributes?.filePDF?.[0]?.url 
+                                                                                ? `http://localhost:1337${book.attributes.filePDF[0].url}`
+                                                                                : '#',
+                                                                            book.attributes?.filePDF?.[0]?.name || 'document.pdf'
                                                                         )}
+                                                                        disabled={!book.attributes?.filePDF?.[0]?.url}
                                                                     >
                                                                         <i className="fas fa-download me-2"></i>Tải xuống
                                                                     </button>
