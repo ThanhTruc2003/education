@@ -1,10 +1,20 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-const Contact = () => {
+const Primary = () => {
+  const [expandedItems, setExpandedItems] = useState({});
+
+  const toggleExpand = (itemId) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [itemId]: !prev[itemId]
+    }));
+  };
+
   useEffect(() => {
-    document.title = 'Liên hệ';
+    document.title = 'Tiểu học';
   }, []);
+
   return (
     <>
         <div className="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
@@ -43,7 +53,6 @@ const Contact = () => {
                             <a href="/library" className="nav-item nav-link">Thư viện</a>
                             <a href="/contact" className="nav-item nav-link">Liên hệ</a>
                         </div>
-                        
                         <div className="d-flex me-4">
                             <div id="phone-tada" className="d-flex align-items-center justify-content-center">
                                 <a href="" className="position-relative wow tada" data-wow-delay=".9s" >
@@ -86,58 +95,151 @@ const Contact = () => {
         
         <div className="container-fluid page-header py-5 wow fadeIn" data-wow-delay="0.1s">
             <div className="container text-center py-5">
-                <h1 className="display-2 text-white mb-4">Liên hệ</h1>
+                <h1 className="display-2 text-white mb-4">Tiểu học</h1>
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb justify-content-center mb-0">
                         <li className="breadcrumb-item"><a href="/home">Trang chủ</a></li>
-                        <li className="breadcrumb-item text-white" aria-current="page">Liên hệ</li>
+                        <li className="breadcrumb-item"><a>Khóa học</a></li>
+                        <li className="breadcrumb-item text-white" aria-current="page">Tiểu học</li>
                     </ol>
                 </nav>
             </div>
         </div>
 
 
-        <div className="container-fluid py-5">
+        <div className="container-fluid blog py-5">
             <div className="container py-5">
-                <div className="p-5 bg-light rounded">
-                    <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{ maxWidth: '700px' }}>
-                        <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Liên hệ với chúng tôi</h4>
-                        <h1 className="display-3">Hãy liên hệ cho chúng tôi nếu như bạn đang có thắc mắc</h1>
+                <div className="row g-4">
+                    {/* Lớp 3 */}
+                    <div className="col-md-12 mb-4">
+                        <div className="card border-2 border-primary shadow-sm" style={{ borderColor: '#ff4880 !important' }}>
+                            <div className="card-header bg-primary text-white">
+                                <h4 className="mb-0">Lớp 3</h4>
+                            </div>
+                            <div className="card-body">
+                                <div className="list-group">
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai1Lop3"
+                                       onClick={() => toggleExpand('bai1Lop3')}>
+                                        Bài 1
+                                        <i className={`fas ${expandedItems['bai1Lop3'] ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
+                                    </a>
+                                    <div className="collapse" id="collapseBai1Lop3">
+                                        <a href="/primary/lop3/bai1-1" className="list-group-item list-group-item-action ps-5">Bài 1.1</a>
+                                        <a href="/primary/lop3/bai1-2" className="list-group-item list-group-item-action ps-5">Bài 1.2</a>
+                                    </div>
+
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai2Lop3"
+                                       onClick={() => toggleExpand('bai2Lop3')}>
+                                        Bài 2
+                                        <i className={`fas ${expandedItems['bai2Lop3'] ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
+                                    </a>
+                                    <div className="collapse" id="collapseBai2Lop3">
+                                        <a href="/primary/lop3/bai2-1" className="list-group-item list-group-item-action ps-5">Bài 2.1</a>
+                                        <a href="/primary/lop3/bai2-2" className="list-group-item list-group-item-action ps-5">Bài 2.2</a>
+                                    </div>
+
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai3Lop3"
+                                       onClick={() => toggleExpand('bai3Lop3')}>
+                                        Bài 3
+                                        <i className={`fas ${expandedItems['bai3Lop3'] ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
+                                    </a>
+                                    <div className="collapse" id="collapseBai3Lop3">
+                                        <a href="/primary/lop3/bai3-1" className="list-group-item list-group-item-action ps-5">Bài 3.1</a>
+                                        <a href="/primary/lop3/bai3-2" className="list-group-item list-group-item-action ps-5">Bài 3.2</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="row g-5 mb-5">
-                        <div className="col-lg-4 wow fadeIn" data-wow-delay="0.1s">
-                            <div className="d-flex w-1001 border border-primary p-4 rounded bg-white">
-                                <i className="fas fa-map-marker-alt fa-2x text-primary me-4"></i>
-                                <div className="">
-                                    <h4>Địa chỉ</h4>
-                                    <p className="mb-2">Thành phố Hồ Chí Minh</p>
-                                </div>
+
+                    {/* Lớp 4 */}
+                    <div className="col-md-12 mb-4">
+                        <div className="card border-2 border-primary shadow-sm" style={{ borderColor: '#ff4880 !important' }}>
+                            <div className="card-header bg-primary text-white">
+                                <h4 className="mb-0">Lớp 4</h4>
                             </div>
-                        </div>
-                        <div className="col-lg-4 wow fadeIn" data-wow-delay="0.3s">
-                            <div className="d-flex w-1001 border border-primary p-4 rounded bg-white">
-                                <i className="fas fa-envelope fa-2x text-primary me-4"></i>
-                                <div className="">
-                                    <h4>Email</h4>
-                                    <p className="mb-2">ntruc1926@gmail.com</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                            <div className="d-flex w-1001 border border-primary p-4 rounded bg-white">
-                                <i className="fa fa-phone-alt fa-2x text-primary me-4"></i>
-                                <div className="">
-                                    <h4>Số điện thoại</h4>
-                                    <p className="mb-2">(+84) 376 805 991</p>
+                            <div className="card-body">
+                                <div className="list-group">
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai1Lop4">
+                                        Bài 1
+                                        <i className="fas fa-angle-right"></i>
+                                    </a>
+                                    <div className="collapse" id="collapseBai1Lop4">
+                                        <a href="/primary/lop4/bai1-1" className="list-group-item list-group-item-action ps-5">Bài 1.1</a>
+                                        <a href="/primary/lop4/bai1-2" className="list-group-item list-group-item-action ps-5">Bài 1.2</a>
+                                    </div>
+
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai2Lop4">
+                                        Bài 2
+                                        <i className="fas fa-angle-right"></i>
+                                    </a>
+                                    <div className="collapse" id="collapseBai2Lop4">
+                                        <a href="/primary/lop4/bai2-1" className="list-group-item list-group-item-action ps-5">Bài 2.1</a>
+                                        <a href="/primary/lop4/bai2-2" className="list-group-item list-group-item-action ps-5">Bài 2.2</a>
+                                    </div>
+
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai3Lop4">
+                                        Bài 3
+                                        <i className="fas fa-angle-right"></i>
+                                    </a>
+                                    <div className="collapse" id="collapseBai3Lop4">
+                                        <a href="/primary/lop4/bai3-1" className="list-group-item list-group-item-action ps-5">Bài 3.1</a>
+                                        <a href="/primary/lop4/bai3-2" className="list-group-item list-group-item-action ps-5">Bài 3.2</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="row g-5">
-                        <div className="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-                            <div className="border border-primary rounded">
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d501715.500659255!2d106.35552640622468!3d10.761253727966677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752eefdb25d923%3A0x4bcf54ddca2b7214!2zSOG7kyBDaMOtIE1pbmgsIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1733666569610!5m2!1svi!2s" 
-                                className="w-100 rounded" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+                    {/* Lớp 5 */}
+                    <div className="col-md-12 mb-4">
+                        <div className="card border-2 border-primary shadow-sm" style={{ borderColor: '#ff4880 !important' }}>
+                            <div className="card-header bg-primary text-white">
+                                <h4 className="mb-0">Lớp 5</h4>
+                            </div>
+                            <div className="card-body">
+                                <div className="list-group">
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai1Lop5">
+                                        Bài 1
+                                        <i className="fas fa-angle-right"></i>
+                                    </a>
+                                    <div className="collapse" id="collapseBai1Lop5">
+                                        <a href="/primary/lop5/bai1-1" className="list-group-item list-group-item-action ps-5">Bài 1.1</a>
+                                        <a href="/primary/lop5/bai1-2" className="list-group-item list-group-item-action ps-5">Bài 1.2</a>
+                                    </div>
+
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai2Lop5">
+                                        Bài 2
+                                        <i className="fas fa-angle-right"></i>
+                                    </a>
+                                    <div className="collapse" id="collapseBai2Lop5">
+                                        <a href="/primary/lop5/bai2-1" className="list-group-item list-group-item-action ps-5">Bài 2.1</a>
+                                        <a href="/primary/lop5/bai2-2" className="list-group-item list-group-item-action ps-5">Bài 2.2</a>
+                                    </div>
+
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       data-bs-toggle="collapse" 
+                                       href="#collapseBai3Lop5">
+                                        Bài 3
+                                        <i className="fas fa-angle-right"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -159,19 +261,18 @@ const Contact = () => {
                                 trong các kỳ thi.</p>
                         </div>
                     </div>
-
+                
                     <div className="col-md-6 col-lg-4 col-xl-3" style={{marginLeft: "330px"}}>
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Địa điểm</h4>
                             <div className="d-flex flex-column align-items-start">
-                                <a className="text-body mb-4"><i className="fa fa-map-marker-alt text-primary me-2"></i> Thành phố Hồ Chí Minh</a>
-                                <a className="text-start rounded-0 text-body mb-4"><i className="fa fa-phone-alt text-primary me-2"></i> (+84) 376 805 991</a>
-                                <a className="text-start rounded-0 text-body mb-4"><i className="fas fa-envelope text-primary me-2"></i> ntruc1926@gmail.com</a>
-                                <a className="text-start rounded-0 text-body mb-4"><i className="fa fa-clock text-primary me-2"></i> Thời gian làm việc 24/7</a>
+                                <a href="" className="text-body mb-4"><i className="fa fa-map-marker-alt text-primary me-2"></i> Thành phố Hồ Chí Minh</a>
+                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fa fa-phone-alt text-primary me-2"></i> (+84) 376 805 991</a>
+                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fas fa-envelope text-primary me-2"></i> ntruc1926@gmail.com</a>
+                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fa fa-clock text-primary me-2"></i> Thời gian làm việc 24/7</a>
                             </div>
                         </div>
                     </div>
-
                     <div className="col-md-6 col-lg-4 col-xl-3">
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Thư viện ảnh</h4>
@@ -213,6 +314,7 @@ const Contact = () => {
             </div>
         </div>
 
+
         <div className="container-fluid copyright bg-dark py-4">
             <div className="container">
                 <div className="row">
@@ -231,4 +333,4 @@ const Contact = () => {
   );
 }
 
-export default Contact;
+export default Primary;

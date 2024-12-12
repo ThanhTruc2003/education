@@ -4,13 +4,12 @@ function DocumentFilter({ setBooks }) {
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [expandedClass, setExpandedClass] = useState(null);
   const [selectedContent, setSelectedContent] = useState(null);
 
-  const toggleExpand = (event, className) => {
+  const toggleExpand = (event, documentId) => {
     event.preventDefault();
-    setExpandedClass(expandedClass === className ? null : className);
+    setExpandedClass(expandedClass === documentId ? null : documentId);
   };
 
   const handleContentSelect = (event, content) => {
@@ -23,7 +22,7 @@ function DocumentFilter({ setBooks }) {
       const response = await fetch(
         `http://localhost:1337/api/docs?filters[$and][0][document_categories][$eq]=${categoriesIds[0]}&filters[$and][1][document_categories][$eq]=${categoriesIds[1]}&populate=*`
       );
-      const data = await response.json();
+      const data = await response.json();;
       setBooks(data.data);
     };
     getBookByCategories(selectedCategories);
@@ -57,8 +56,6 @@ function DocumentFilter({ setBooks }) {
               <span className="visually-hidden">Đang tải...</span>
             </div>
           </div>
-        ) : error ? (
-          <div className="alert alert-danger">{error}</div>
         ) : (
           categories.map((mainCategory) => (
             <div
@@ -80,43 +77,45 @@ function DocumentFilter({ setBooks }) {
                   .map((grade) => {
                     return (
                       <div key={grade.id}>
-                        <a
+                      <a
+                        href=""
+                        className="nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg"
+                        onClick={(event) =>
+                        toggleExpand(event, grade.documentId)
+                        }
+                      >
+                        {grade.name}
+                        <i
+                        className={`fas ${
+                          expandedClass === grade.documentId
+                          ? "fa-angle-down"
+                          : "fa-angle-right"
+                        } ms-2`}
+                        ></i>
+                      </a>
+                      {expandedClass === grade.documentId && (
+                        <div className="nav flex-column ps-4">                   
+                        {grade.children.map((subCat) => (
+                          <a
+                          key={subCat.id}
                           href=""
-                          className="nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg"
-                          onClick={(event) =>
-                            toggleExpand(event, grade.documentId)
-                          }
-                        >
-                          {grade.name}
-                          <i
-                            className={`fas ${
-                              expandedClass === grade.documentId
-                                ? "fa-angle-down"
-                                : "fa-angle-right"
-                            } ms-2`}
-                          ></i>
-                        </a>
-                        {expandedClass === grade.documentId && (
-                          <div className="nav flex-column ps-4">
-                            {grade.children.map((subCat) => (
-                              <a
-                                key={subCat.id}
-                                href="#"
-                                className={`nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg ${
-                                  selectedContent ===
-                                  `${grade.name}_${subCat.name}`
-                                    ? "active-link"
-                                    : ""
-                                }`}
-                                onClick={(event) =>
-                                  setSelectedCategories([subCat.id, grade.id])
-                                }
-                              >
-                                {subCat.name}
-                              </a>
-                            ))}
-                          </div>
-                        )}
+                          className={`nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg ${
+                            selectedContent ===
+                            `${grade.name}_${subCat.name}`
+                            ? "active-link"
+                            : ""
+                          }`}
+                          
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setSelectedCategories([grade.id, subCat.id]);
+                          }}
+                          >
+                          {subCat.name}
+                          </a>
+                        ))}
+                        </div>
+                      )}
                       </div>
                     );
                   })}

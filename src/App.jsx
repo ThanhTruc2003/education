@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Service from "./pages/Service";
 import Event from "./pages/Event";
-import Blog from "./pages/Blog";
+import Primary from "./pages/Primary";
 import Team from "./pages/Team";
 import Testimonial from "./pages/Testimonial";
 import NotFound from "./pages/404";
@@ -21,7 +21,7 @@ function App() {
       <Route path="/service" element={<Service />} />
       <Route path="/library" element={<Library />} />
       <Route path="/event" element={<Event />} />
-      <Route path="/blog" element={<Blog />} />
+      <Route path="/primary" element={<Primary />} />
       <Route path="/team" element={<Team />} />
       <Route path="/testimonial" element={<Testimonial />} />
       <Route path="/NotFound" element={<NotFound />} />

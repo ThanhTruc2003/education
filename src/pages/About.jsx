@@ -34,7 +34,7 @@ const About = () => {
               <div className="nav-item dropdown">
                 <a href="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">Khóa học</a>
                 <div className="dropdown-menu m-0 bg-secondary rounded-0">
-                    <a href="/blog" className="dropdown-item">Tiểu học</a>
+                    <a href="/primary" className="dropdown-item">Tiểu học</a>
                     <a href="/team" className="dropdown-item">THCS</a>
                     <a href="/testimonial" className="dropdown-item">THPT</a>
                 </div>

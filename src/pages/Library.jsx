@@ -5,11 +5,9 @@ import DocumentFilter from "../components/Library/DocumentFilter";
 const Library = () => {
   const [showPdf, setShowPdf] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState("");
-  const [isLoadingBooks, setIsLoadingBooks] = useState(false);
-  const [errorBooks, setErrorBooks] = useState(null);
-
+  const [isLoadingBooks] = useState(false);
+  const [errorBooks] = useState(null);
   const [books, setBooks] = useState([]);
-
 
   const handleReadOnline = (pdfUrl) => {
     const fullPdfUrl = `http://localhost:1337${pdfUrl}`;
@@ -116,7 +114,7 @@ const Library = () => {
                     Khóa học
                   </a>
                   <div className="dropdown-menu m-0 bg-secondary rounded-0">
-                    <a href="/blog" className="dropdown-item">
+                    <a href="/primary" className="dropdown-item">
                       Tiểu học
                     </a>
                     <a href="/team" className="dropdown-item">
@@ -258,9 +256,6 @@ const Library = () => {
                 </h4>
                 {books.length > 0 ? (
                   <div>
-                    <h5 style={{ marginBottom: "20px" }}>
-                      Sách giáo khoa Tin học lớp 3
-                    </h5>
                     {isLoadingBooks ? (
                       <div className="text-center">
                         <div
@@ -282,10 +277,7 @@ const Library = () => {
                                 alt={book?.name || "Sách giáo khoa"}
                                 className="img-fluid mb-3 book-image"
                               />
-                              <p className="pw-bold">{book?.name}</p>
-                              <h6 className="fw-bold mb-3">
-                                {book.attributes?.name}
-                              </h6>
+                              <p className="fw-bold">{book?.name}</p>
                               <div className="d-flex justify-content-center gap-2">
                                 <button
                                   className="btn btn-primary"
@@ -321,14 +313,12 @@ const Library = () => {
                         >
                           <i className="fas fa-arrow-left me-2"></i>Quay lại
                         </button>
-                        <div style={{ height: "693px" }}>
+                        <div style={{ height: "735px"}}>
                           <iframe
                             src={selectedPdf}
                             width="100%"
                             height="100%"
                             style={{ border: "none" }}
-                            title="PDF Viewer"
-                            allowFullScreen
                           />
                         </div>
                       </div>

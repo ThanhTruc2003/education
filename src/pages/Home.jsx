@@ -51,7 +51,7 @@ const Home = () => {
                             <div className="nav-item dropdown">
                                 <a href="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">Khóa học</a>
                                 <div className="dropdown-menu m-0 bg-secondary rounded-0">
-                                    <a href="/blog" className="dropdown-item">Tiểu học</a>
+                                    <a href="/primary" className="dropdown-item">Tiểu học</a>
                                     <a href="/team" className="dropdown-item">THCS</a>
                                     <a href="/testimonial" className="dropdown-item">THPT</a>
                                 </div>
@@ -180,7 +180,7 @@ const Home = () => {
                                     <div className="p-4"><i className="fas fa-video fa-6x text-primary"></i></div>
                                     <a className="h4">Video bài giảng</a>
                                     <p className="my-3">Video bài giảng chất lượng được thiết kế bám sát kiến thức của sách giáo khoa kết hợp mở rộng nâng cao - Giúp học sinh học chắc cơ bản - giỏi nâng cao.</p>
-                                    <a href="/blog" className="btn btn-primary text-white px-4 py-2 my-2 btn-border-radius">Đọc thêm</a>
+                                    <a href="/primary" className="btn btn-primary text-white px-4 py-2 my-2 btn-border-radius">Đọc thêm</a>
                                 </div>
                             </div>
                         </div>
@@ -246,7 +246,7 @@ const Home = () => {
                             </div>
                             <div className="program-text bg-white px-4 pb-3">
                                 <div className="program-text-inner">
-                                    <a href="/blog" className="h4">Tin học 3 - Kết nối tri thức & cuộc sống</a>
+                                    <a href="/primary" className="h4">Tin học 3 - Kết nối tri thức & cuộc sống</a>
                                 </div>
                             </div>
                             <div className="program-teacher d-flex align-items-center border-top border-primary bg-white px-4 py-3">
