@@ -102,12 +102,12 @@ function DocumentFilter({ setBooks }) {
                           className={`nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg ${
                             selectedContent ===
                             `${grade.name}_${subCat.name}`
-                            ? "active-link"
-                            : ""
+                            ? 'active' : ''
                           }`}
                           
                           onClick={(event) => {
                             event.preventDefault();
+                            setSelectedContent(`${grade.name}_${subCat.name}`);
                             setSelectedCategories([grade.id, subCat.id]);
                           }}
                           >

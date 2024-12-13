@@ -4,9 +4,8 @@ import About from "./pages/About";
 import Service from "./pages/Service";
 import Event from "./pages/Event";
 import Primary from "./pages/Primary";
-import Team from "./pages/Team";
-import Testimonial from "./pages/Testimonial";
-import NotFound from "./pages/404";
+import Secondary from "./pages/Secondary";
+import High from "./pages/High";
 import Library from "./pages/Library";
 import Contact from "./pages/Contact";  
 import CreateAccount from "./pages/CreateAccount";
@@ -22,9 +21,8 @@ function App() {
       <Route path="/library" element={<Library />} />
       <Route path="/event" element={<Event />} />
       <Route path="/primary" element={<Primary />} />
-      <Route path="/team" element={<Team />} />
-      <Route path="/testimonial" element={<Testimonial />} />
-      <Route path="/NotFound" element={<NotFound />} />
+      <Route path="/secondary" element={<Secondary />} />
+      <Route path="/high" element={<High />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/tao-tai-khoan" element={<CreateAccount />} />
       <Route path="/quen-mat-khau" element={<ForgotPassword />} />

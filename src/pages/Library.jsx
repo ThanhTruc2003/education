@@ -117,10 +117,10 @@ const Library = () => {
                     <a href="/primary" className="dropdown-item">
                       Tiểu học
                     </a>
-                    <a href="/team" className="dropdown-item">
+                    <a href="/secondary" className="dropdown-item">
                       THCS
                     </a>
-                    <a href="/testimonial" className="dropdown-item">
+                    <a href="/high" className="dropdown-item">
                       THPT
                     </a>
                   </div>

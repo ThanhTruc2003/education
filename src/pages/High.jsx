@@ -1,10 +1,35 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-const Contact = () => {
+const High = () => {
+  const [categories, setCategories] = useState([]);
+  const [selectedBook, setSelectedBook] = useState({ gradeId: null, bookId: null });
+  const [selectedLesson, setSelectedLesson] = useState(null);
+
   useEffect(() => {
-    document.title = 'Liên hệ';
+    document.title = 'Trung học phổ thông';
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      // Trước tiên lấy category có name = "THPT"
+      const categoryResponse = await fetch('http://localhost:1337/api/cousre-categories?filters[name][$eq]=THPT');
+      const categoryData = await categoryResponse.json();
+      
+      if (categoryData.data && categoryData.data.length > 0) {
+        const primaryId = categoryData.data[0].id;
+        
+        // Sau đó dùng id này để lấy chi tiết
+        const response = await fetch(`http://localhost:1337/api/cousre-categories?filters[parent][$null]=true&populate[0]=children&populate[1]=children.children&populate[2]=children.children.children&populate[3]=children.children.children.children&filters[id]=${primaryId}`);
+        const data = await response.json();
+        setCategories(data.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi tải dữ liệu:', error);
+    }
+  };
+
   return (
     <>
         <div className="container-fluid border-bottom bg-light wow fadeIn" data-wow-delay="0.1s">
@@ -43,7 +68,6 @@ const Contact = () => {
                             <a href="/library" className="nav-item nav-link">Thư viện</a>
                             <a href="/contact" className="nav-item nav-link">Liên hệ</a>
                         </div>
-                        
                         <div className="d-flex me-4">
                             <div id="phone-tada" className="d-flex align-items-center justify-content-center">
                                 <a href="" className="position-relative wow tada" data-wow-delay=".9s" >
@@ -86,61 +110,86 @@ const Contact = () => {
         
         <div className="container-fluid page-header py-5 wow fadeIn" data-wow-delay="0.1s">
             <div className="container text-center py-5">
-                <h1 className="display-2 text-white mb-4">Liên hệ</h1>
+                <h1 className="display-2 text-white mb-4">Trung học phổ thông</h1>
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb justify-content-center mb-0">
                         <li className="breadcrumb-item"><a href="/home">Trang chủ</a></li>
-                        <li className="breadcrumb-item text-white" aria-current="page">Liên hệ</li>
+                        <li className="breadcrumb-item"><a>Khóa học</a></li>
+                        <li className="breadcrumb-item text-white" aria-current="page">Trung học phổ thông</li>
                     </ol>
                 </nav>
             </div>
         </div>
 
 
-        <div className="container-fluid py-5">
+        <div className="container-fluid blog py-5">
             <div className="container py-5">
-                <div className="p-5 bg-light rounded">
-                    <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{ maxWidth: '700px' }}>
-                        <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Liên hệ với chúng tôi</h4>
-                        <h1 className="display-3">Hãy liên hệ cho chúng tôi nếu như bạn đang có thắc mắc</h1>
-                    </div>
-                    <div className="row g-5 mb-5">
-                        <div className="col-lg-4 wow fadeIn" data-wow-delay="0.1s">
-                            <div className="d-flex w-1001 border border-primary p-4 rounded bg-white">
-                                <i className="fas fa-map-marker-alt fa-2x text-primary me-4"></i>
-                                <div className="">
-                                    <h4>Địa chỉ</h4>
-                                    <p className="mb-2">Thành phố Hồ Chí Minh</p>
-                                </div>
+                <div className="row g-4">
+                    {categories.length > 0 && categories[0].children
+                      .sort((a, b) => {
+                        // Lấy số lớp từ tên (ví dụ: "Lớp 3" -> 3)
+                        const getGradeNumber = (name) => parseInt(name.replace("Lớp ", ""));
+                        return getGradeNumber(a.name) - getGradeNumber(b.name);
+                      })
+                      .map((grade) => (
+                        <div className="col-md-12 mb-4 wow fadeIn" 
+                             data-wow-delay="0.2s" 
+                             key={grade.id}>
+                          <div className="card border-2 border-primary shadow-sm">
+                            <div className="card-header bg-primary text-white">
+                              <h4 className="mb-0 d-flex justify-content-between align-items-center">
+                                {grade.name}
+                              </h4>
                             </div>
-                        </div>
-                        <div className="col-lg-4 wow fadeIn" data-wow-delay="0.3s">
-                            <div className="d-flex w-1001 border border-primary p-4 rounded bg-white">
-                                <i className="fas fa-envelope fa-2x text-primary me-4"></i>
-                                <div className="">
-                                    <h4>Email</h4>
-                                    <p className="mb-2">ntruc1926@gmail.com</p>
-                                </div>
+                            <div className="card-body">
+                              <div className="list-group">
+                                {grade.children.map((book) => (
+                                  <div key={book.id}>
+                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                       onClick={() => {
+                                         if (selectedBook.gradeId === grade.id && selectedBook.bookId === book.id) {
+                                           setSelectedBook({ gradeId: null, bookId: null });
+                                         } else {
+                                           setSelectedBook({ gradeId: grade.id, bookId: book.id });
+                                         }
+                                       }}
+                                       style={{cursor: 'pointer'}}>
+                                      {book.name}
+                                      <i className={`fas fa-angle-${selectedBook.gradeId === grade.id && selectedBook.bookId === book.id ? 'down' : 'right'}`}></i>
+                                    </a>
+                                    {selectedBook.gradeId === grade.id && selectedBook.bookId === book.id && (
+                                      <div className="collapse show" id={`collapse${book.id}`}>
+                                        {book.children.map((lesson) => (
+                                          <div key={lesson.id}>
+                                            <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center ps-5" 
+                                               onClick={() => setSelectedLesson(selectedLesson === lesson.id ? null : lesson.id)}
+                                               data-bs-toggle="collapse"
+                                               href={`#collapseSub${lesson.id}`}
+                                               style={{cursor: 'pointer'}}>
+                                              {lesson.name}
+                                              <i className={`fas fa-angle-${selectedLesson === lesson.id ? 'down' : 'right'}`}></i>
+                                            </a>
+                                            <div className="collapse" id={`collapseSub${lesson.id}`}>
+                                              {lesson.children.map((item) => (
+                                                <a key={item.id} 
+                                                   href={`/primary/${grade.documentId}/${book.documentId}/${lesson.documentId}/${item.documentId}`} 
+                                                   className="list-group-item list-group-item-action"
+                                                   style={{paddingLeft: "6rem"}}>
+                                                  {item.name}
+                                                </a>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
+                          </div>
                         </div>
-                        <div className="col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                            <div className="d-flex w-1001 border border-primary p-4 rounded bg-white">
-                                <i className="fa fa-phone-alt fa-2x text-primary me-4"></i>
-                                <div className="">
-                                    <h4>Số điện thoại</h4>
-                                    <p className="mb-2">(+84) 376 805 991</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row g-5">
-                        <div className="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-                            <div className="border border-primary rounded">
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d501715.500659255!2d106.35552640622468!3d10.761253727966677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752eefdb25d923%3A0x4bcf54ddca2b7214!2zSOG7kyBDaMOtIE1pbmgsIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1733666569610!5m2!1svi!2s" 
-                                className="w-100 rounded" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                            </div>
-                        </div>
-                    </div>
+                      ))}
                 </div>
             </div>
         </div>
@@ -159,19 +208,18 @@ const Contact = () => {
                                 trong các kỳ thi.</p>
                         </div>
                     </div>
-
+                
                     <div className="col-md-6 col-lg-4 col-xl-3" style={{marginLeft: "330px"}}>
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Địa điểm</h4>
                             <div className="d-flex flex-column align-items-start">
-                                <a className="text-body mb-4"><i className="fa fa-map-marker-alt text-primary me-2"></i> Thành phố Hồ Chí Minh</a>
-                                <a className="text-start rounded-0 text-body mb-4"><i className="fa fa-phone-alt text-primary me-2"></i> (+84) 376 805 991</a>
-                                <a className="text-start rounded-0 text-body mb-4"><i className="fas fa-envelope text-primary me-2"></i> ntruc1926@gmail.com</a>
-                                <a className="text-start rounded-0 text-body mb-4"><i className="fa fa-clock text-primary me-2"></i> Thời gian làm việc 24/7</a>
+                                <a href="" className="text-body mb-4"><i className="fa fa-map-marker-alt text-primary me-2"></i> Thành phố Hồ Chí Minh</a>
+                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fa fa-phone-alt text-primary me-2"></i> (+84) 376 805 991</a>
+                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fas fa-envelope text-primary me-2"></i> ntruc1926@gmail.com</a>
+                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fa fa-clock text-primary me-2"></i> Thời gian làm việc 24/7</a>
                             </div>
                         </div>
                     </div>
-
                     <div className="col-md-6 col-lg-4 col-xl-3">
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Thư viện ảnh</h4>
@@ -213,6 +261,7 @@ const Contact = () => {
             </div>
         </div>
 
+
         <div className="container-fluid copyright bg-dark py-4">
             <div className="container">
                 <div className="row">
@@ -231,4 +280,4 @@ const Contact = () => {
   );
 }
 
-export default Contact;
+export default High;

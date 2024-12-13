@@ -2,18 +2,33 @@
 import { useEffect, useState } from 'react';
 
 const Primary = () => {
-  const [expandedItems, setExpandedItems] = useState({});
-
-  const toggleExpand = (itemId) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [itemId]: !prev[itemId]
-    }));
-  };
+  const [categories, setCategories] = useState([]);
+  const [selectedBook, setSelectedBook] = useState({ gradeId: null, bookId: null });
+  const [selectedLesson, setSelectedLesson] = useState(null);
 
   useEffect(() => {
     document.title = 'Tiểu học';
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      // Trước tiên lấy category có name = "Tiểu học"
+      const categoryResponse = await fetch('http://localhost:1337/api/cousre-categories?filters[name][$eq]=Tiểu học');
+      const categoryData = await categoryResponse.json();
+      
+      if (categoryData.data && categoryData.data.length > 0) {
+        const primaryId = categoryData.data[0].id;
+        
+        // Sau đó dùng id này để lấy chi tiết
+        const response = await fetch(`http://localhost:1337/api/cousre-categories?filters[parent][$null]=true&populate[0]=children&populate[1]=children.children&populate[2]=children.children.children&populate[3]=children.children.children.children&filters[id]=${primaryId}`);
+        const data = await response.json();
+        setCategories(data.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi tải dữ liệu:', error);
+    }
+  };
 
   return (
     <>
@@ -44,8 +59,8 @@ const Primary = () => {
                                 <a href="#" className="nav-link dropdown-toggle" data-bs-toggle="dropdown">Khóa học</a>
                                 <div className="dropdown-menu m-0 bg-secondary rounded-0">
                                     <a href="/primary" className="dropdown-item">Tiểu học</a>
-                                    <a href="/team" className="dropdown-item">THCS</a>
-                                    <a href="/testimonial" className="dropdown-item">THPT</a>
+                                    <a href="/secondary" className="dropdown-item">THCS</a>
+                                    <a href="/high" className="dropdown-item">THPT</a>
                                 </div>
                             </div>
                             <a href="/about" className="nav-item nav-link">Giới thiệu</a>
@@ -110,139 +125,71 @@ const Primary = () => {
         <div className="container-fluid blog py-5">
             <div className="container py-5">
                 <div className="row g-4">
-                    {/* Lớp 3 */}
-                    <div className="col-md-12 mb-4">
-                        <div className="card border-2 border-primary shadow-sm" style={{ borderColor: '#ff4880 !important' }}>
+                    {categories.length > 0 && categories[0].children
+                      .sort((a, b) => {
+                        // Lấy số lớp từ tên (ví dụ: "Lớp 3" -> 3)
+                        const getGradeNumber = (name) => parseInt(name.replace("Lớp ", ""));
+                        return getGradeNumber(a.name) - getGradeNumber(b.name);
+                      })
+                      .map((grade) => (
+                        <div className="col-md-12 mb-4 wow fadeIn" 
+                             data-wow-delay="0.2s" 
+                             key={grade.id}>
+                          <div className="card border-2 border-primary shadow-sm">
                             <div className="card-header bg-primary text-white">
-                                <h4 className="mb-0">Lớp 3</h4>
+                              <h4 className="mb-0 d-flex justify-content-between align-items-center">
+                                {grade.name}
+                              </h4>
                             </div>
                             <div className="card-body">
-                                <div className="list-group">
+                              <div className="list-group">
+                                {grade.children.map((book) => (
+                                  <div key={book.id}>
                                     <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai1Lop3"
-                                       onClick={() => toggleExpand('bai1Lop3')}>
-                                        Bài 1
-                                        <i className={`fas ${expandedItems['bai1Lop3'] ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
+                                       onClick={() => {
+                                         if (selectedBook.gradeId === grade.id && selectedBook.bookId === book.id) {
+                                           setSelectedBook({ gradeId: null, bookId: null });
+                                         } else {
+                                           setSelectedBook({ gradeId: grade.id, bookId: book.id });
+                                         }
+                                       }}
+                                       style={{cursor: 'pointer'}}>
+                                      {book.name}
+                                      <i className={`fas fa-angle-${selectedBook.gradeId === grade.id && selectedBook.bookId === book.id ? 'down' : 'right'}`}></i>
                                     </a>
-                                    <div className="collapse" id="collapseBai1Lop3">
-                                        <a href="/primary/lop3/bai1-1" className="list-group-item list-group-item-action ps-5">Bài 1.1</a>
-                                        <a href="/primary/lop3/bai1-2" className="list-group-item list-group-item-action ps-5">Bài 1.2</a>
-                                    </div>
-
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai2Lop3"
-                                       onClick={() => toggleExpand('bai2Lop3')}>
-                                        Bài 2
-                                        <i className={`fas ${expandedItems['bai2Lop3'] ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
-                                    </a>
-                                    <div className="collapse" id="collapseBai2Lop3">
-                                        <a href="/primary/lop3/bai2-1" className="list-group-item list-group-item-action ps-5">Bài 2.1</a>
-                                        <a href="/primary/lop3/bai2-2" className="list-group-item list-group-item-action ps-5">Bài 2.2</a>
-                                    </div>
-
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai3Lop3"
-                                       onClick={() => toggleExpand('bai3Lop3')}>
-                                        Bài 3
-                                        <i className={`fas ${expandedItems['bai3Lop3'] ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
-                                    </a>
-                                    <div className="collapse" id="collapseBai3Lop3">
-                                        <a href="/primary/lop3/bai3-1" className="list-group-item list-group-item-action ps-5">Bài 3.1</a>
-                                        <a href="/primary/lop3/bai3-2" className="list-group-item list-group-item-action ps-5">Bài 3.2</a>
-                                    </div>
-                                </div>
+                                    {selectedBook.gradeId === grade.id && selectedBook.bookId === book.id && (
+                                      <div className="collapse show" id={`collapse${book.id}`}>
+                                        {book.children.map((lesson) => (
+                                          <div key={lesson.id}>
+                                            <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center ps-5" 
+                                               onClick={() => setSelectedLesson(selectedLesson === lesson.id ? null : lesson.id)}
+                                               data-bs-toggle="collapse"
+                                               href={`#collapseSub${lesson.id}`}
+                                               style={{cursor: 'pointer'}}>
+                                              {lesson.name}
+                                              <i className={`fas fa-angle-${selectedLesson === lesson.id ? 'down' : 'right'}`}></i>
+                                            </a>
+                                            <div className="collapse" id={`collapseSub${lesson.id}`}>
+                                              {lesson.children.map((item) => (
+                                                <a key={item.id} 
+                                                   href={`/primary/${grade.documentId}/${book.documentId}/${lesson.documentId}/${item.documentId}`} 
+                                                   className="list-group-item list-group-item-action"
+                                                   style={{paddingLeft: "6rem"}}>
+                                                  {item.name}
+                                                </a>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
+                          </div>
                         </div>
-                    </div>
-
-                    {/* Lớp 4 */}
-                    <div className="col-md-12 mb-4">
-                        <div className="card border-2 border-primary shadow-sm" style={{ borderColor: '#ff4880 !important' }}>
-                            <div className="card-header bg-primary text-white">
-                                <h4 className="mb-0">Lớp 4</h4>
-                            </div>
-                            <div className="card-body">
-                                <div className="list-group">
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai1Lop4">
-                                        Bài 1
-                                        <i className="fas fa-angle-right"></i>
-                                    </a>
-                                    <div className="collapse" id="collapseBai1Lop4">
-                                        <a href="/primary/lop4/bai1-1" className="list-group-item list-group-item-action ps-5">Bài 1.1</a>
-                                        <a href="/primary/lop4/bai1-2" className="list-group-item list-group-item-action ps-5">Bài 1.2</a>
-                                    </div>
-
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai2Lop4">
-                                        Bài 2
-                                        <i className="fas fa-angle-right"></i>
-                                    </a>
-                                    <div className="collapse" id="collapseBai2Lop4">
-                                        <a href="/primary/lop4/bai2-1" className="list-group-item list-group-item-action ps-5">Bài 2.1</a>
-                                        <a href="/primary/lop4/bai2-2" className="list-group-item list-group-item-action ps-5">Bài 2.2</a>
-                                    </div>
-
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai3Lop4">
-                                        Bài 3
-                                        <i className="fas fa-angle-right"></i>
-                                    </a>
-                                    <div className="collapse" id="collapseBai3Lop4">
-                                        <a href="/primary/lop4/bai3-1" className="list-group-item list-group-item-action ps-5">Bài 3.1</a>
-                                        <a href="/primary/lop4/bai3-2" className="list-group-item list-group-item-action ps-5">Bài 3.2</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Lớp 5 */}
-                    <div className="col-md-12 mb-4">
-                        <div className="card border-2 border-primary shadow-sm" style={{ borderColor: '#ff4880 !important' }}>
-                            <div className="card-header bg-primary text-white">
-                                <h4 className="mb-0">Lớp 5</h4>
-                            </div>
-                            <div className="card-body">
-                                <div className="list-group">
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai1Lop5">
-                                        Bài 1
-                                        <i className="fas fa-angle-right"></i>
-                                    </a>
-                                    <div className="collapse" id="collapseBai1Lop5">
-                                        <a href="/primary/lop5/bai1-1" className="list-group-item list-group-item-action ps-5">Bài 1.1</a>
-                                        <a href="/primary/lop5/bai1-2" className="list-group-item list-group-item-action ps-5">Bài 1.2</a>
-                                    </div>
-
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai2Lop5">
-                                        Bài 2
-                                        <i className="fas fa-angle-right"></i>
-                                    </a>
-                                    <div className="collapse" id="collapseBai2Lop5">
-                                        <a href="/primary/lop5/bai2-1" className="list-group-item list-group-item-action ps-5">Bài 2.1</a>
-                                        <a href="/primary/lop5/bai2-2" className="list-group-item list-group-item-action ps-5">Bài 2.2</a>
-                                    </div>
-
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       data-bs-toggle="collapse" 
-                                       href="#collapseBai3Lop5">
-                                        Bài 3
-                                        <i className="fas fa-angle-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                      ))}
                 </div>
             </div>
         </div>

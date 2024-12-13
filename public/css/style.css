@@ -723,3 +723,18 @@ h6,
     color: var(--bs-secondary) !important;
 }
 /*** Footer End ***/
+.nav-link.active {
+  background-color: #ffa4c0 !important;
+  color: white !important;
+}
+
+.nav-link:hover {
+  background-color: #e9ecef;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Có thể thêm hiệu ứng transition mượt mà */
+.nav-link {
+  transition: all 0.3s ease;
+}
