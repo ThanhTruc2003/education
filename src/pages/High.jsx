@@ -172,7 +172,7 @@ const High = () => {
                                             <div className="collapse" id={`collapseSub${lesson.id}`}>
                                               {lesson.children.map((item) => (
                                                 <a key={item.id} 
-                                                   href={`/primary/${grade.documentId}/${book.documentId}/${lesson.documentId}/${item.documentId}`} 
+                                                   href={`/video/${grade.name.replace(/ /g, '-')}/${book.name.replace(/ /g, '-')}/${lesson.name.replace(/ /g, '-')}/${item.name.replace(/ /g, '-')}`} 
                                                    className="list-group-item list-group-item-action"
                                                    style={{paddingLeft: "6rem"}}>
                                                   {item.name}
@@ -213,10 +213,10 @@ const High = () => {
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Địa điểm</h4>
                             <div className="d-flex flex-column align-items-start">
-                                <a href="" className="text-body mb-4"><i className="fa fa-map-marker-alt text-primary me-2"></i> Thành phố Hồ Chí Minh</a>
-                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fa fa-phone-alt text-primary me-2"></i> (+84) 376 805 991</a>
-                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fas fa-envelope text-primary me-2"></i> ntruc1926@gmail.com</a>
-                                <a href="" className="text-start rounded-0 text-body mb-4"><i className="fa fa-clock text-primary me-2"></i> Thời gian làm việc 24/7</a>
+                                <a className="text-body mb-4"><i className="fa fa-map-marker-alt text-primary me-2"></i> Thành phố Hồ Chí Minh</a>
+                                <a className="text-start rounded-0 text-body mb-4"><i className="fa fa-phone-alt text-primary me-2"></i> (+84) 376 805 991</a>
+                                <a className="text-start rounded-0 text-body mb-4"><i className="fas fa-envelope text-primary me-2"></i> ntruc1926@gmail.com</a>
+                                <a className="text-start rounded-0 text-body mb-4"><i className="fa fa-clock text-primary me-2"></i> Thời gian làm việc 24/7</a>
                             </div>
                         </div>
                     </div>

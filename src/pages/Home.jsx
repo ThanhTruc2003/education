@@ -209,19 +209,6 @@ const Home = () => {
                             </div>
                         </div>
                     </div>
-                    {/* <div className="col-md-6 col-lg-6 col-xl-3 wow fadeIn" data-wow-delay="0.7s">
-                        <div className="text-center border-primary border bg-white service-item">
-                            <div className="service-content d-flex align-items-center justify-content-center p-4">
-                                <div className="service-content-inner">
-                                    <div className="p-4"><i className="fas fa-user-nurse fa-6x text-primary"></i></div>
-                                    <a href="#" className="h4">Mental Health</a>
-                                    <p className="my-3">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus, culpa qui officiis animi Lorem ipsum dolor sit amet, 
-                                        consectetur adipisicing elit.</p>
-                                    <a href="#" className="btn btn-primary text-white px-4 py-2 my-2 btn-border-radius">Read More</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div> */}
                 </div>
             </div>
         </div>

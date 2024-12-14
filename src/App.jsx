@@ -27,7 +27,7 @@ function App() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/tao-tai-khoan" element={<CreateAccount />} />
       <Route path="/quen-mat-khau" element={<ForgotPassword />} />
-      <Route path="/video" element={<Video />} />
+      <Route path="/video/:gradeName/:bookName/:lessonName/:itemName" element={<Video />} />
     </Routes>
   );
 }
