@@ -10,6 +10,7 @@ import Library from "./pages/Library";
 import Contact from "./pages/Contact";  
 import CreateAccount from "./pages/CreateAccount";
 import ForgotPassword from "./pages/ForgotPassword";
+import Video from "./pages/Video";
 function App() {
 
   return (
@@ -26,6 +27,7 @@ function App() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/tao-tai-khoan" element={<CreateAccount />} />
       <Route path="/quen-mat-khau" element={<ForgotPassword />} />
+      <Route path="/video" element={<Video />} />
     </Routes>
   );
 }

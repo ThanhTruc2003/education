@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import qs from "qs";
 
 function DocumentFilter({ setBooks }) {
   const [categories, setCategories] = useState([]);
@@ -19,11 +20,25 @@ function DocumentFilter({ setBooks }) {
 
   useEffect(() => {
     const getBookByCategories = async (categoriesIds) => {
-      const response = await fetch(
-        `http://localhost:1337/api/docs?filters[$and][0][document_categories][$eq]=${categoriesIds[0]}&filters[$and][1][document_categories][$eq]=${categoriesIds[1]}&populate=*`
-      );
-      const data = await response.json();;
-      setBooks(data.data);
+      if (categoriesIds.length === 2) {
+        const query = qs.stringify(
+          {
+            filters: {
+              $and: [
+                { document_categories: {$eq: categoriesIds[0]} },
+                { document_categories: {$eq: categoriesIds[1]} },
+              ],
+            },
+            populate: "*",
+          }, {
+            encodeValuesOnly: true,
+          }
+        )
+        const url = `http://localhost:1337/api/docs?${query}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        setBooks(data.data);
+      }     
     };
     getBookByCategories(selectedCategories);
   }, [selectedCategories]);
