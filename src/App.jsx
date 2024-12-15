@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Service from "./pages/Service";
-import Event from "./pages/Event";
 import Primary from "./pages/Primary";
 import Secondary from "./pages/Secondary";
 import High from "./pages/High";
@@ -20,7 +19,6 @@ function App() {
       <Route path="/about" element={<About />} />
       <Route path="/service" element={<Service />} />
       <Route path="/library" element={<Library />} />
-      <Route path="/event" element={<Event />} />
       <Route path="/primary" element={<Primary />} />
       <Route path="/secondary" element={<Secondary />} />
       <Route path="/high" element={<High />} />
