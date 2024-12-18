@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Button, Checkbox, FormControlLabel, TextField, Typography, Container, Box, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -464,7 +464,7 @@ const CreateAccount = () => {
                                     label="Nhớ mật khẩu"
                                     sx={{ flexGrow: 1 }}
                                 />
-                                <Link to="/quen-mat-khau" style={{ textDecoration: 'none', fontFamily: 'sans-serif'}}>Quên mật khẩu?</Link>
+            
                             </Box>                   
                             <Button 
                                 type="submit"

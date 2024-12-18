@@ -40,7 +40,7 @@ const About = () => {
                 </div>
               </div>
               <a href="/about" className="nav-item nav-link">Giới thiệu</a>
-              <a href="/service" className="nav-item nav-link">Góc ôn luyện</a>
+              <a href="/review" className="nav-item nav-link">Góc ôn luyện</a>
               <a href="/library" className="nav-item nav-link">Thư viện</a>
               <a href="/contact" className="nav-item nav-link">Liên hệ</a>
             </div>

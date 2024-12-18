@@ -57,7 +57,7 @@ const Home = () => {
                                 </div>
                             </div>
                             <a href="/about" className="nav-item nav-link">Giới thiệu</a>
-                            <a href="/service" className="nav-item nav-link">Góc ôn luyện</a>
+                            <a href="/review" className="nav-item nav-link">Góc ôn luyện</a>
                             <a href="/library" className="nav-item nav-link">Thư viện</a>
                             <a href="/contact" className="nav-item nav-link">Liên hệ</a>
                         </div>
@@ -204,7 +204,7 @@ const Home = () => {
                                     <div className="p-4"><i className="fas fa-question fa-6x text-primary"></i></div>
                                     <a className="h4">Kiểm tra Online</a>
                                     <p className="my-3">Kiểm tra online ngay sau mỗi bài học. Sau khi nộp bài, kết quả bài thi sẽ hiện ra. Phần kiểm tra online sẽ giúp các em ôn tập kiến thức và rèn luyện kĩ năng làm bài.</p>
-                                    <a href="/service" className="btn btn-primary text-white px-4 py-2 my-2 btn-border-radius">Đọc thêm</a>
+                                    <a href="/review" className="btn btn-primary text-white px-4 py-2 my-2 btn-border-radius">Đọc thêm</a>
                                 </div>
                             </div>
                         </div>

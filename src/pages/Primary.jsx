@@ -64,7 +64,7 @@ const Primary = () => {
                                 </div>
                             </div>
                             <a href="/about" className="nav-item nav-link">Giới thiệu</a>
-                            <a href="/service" className="nav-item nav-link">Góc ôn luyện</a>
+                            <a href="/review" className="nav-item nav-link">Góc ôn luyện</a>
                             <a href="/library" className="nav-item nav-link">Thư viện</a>
                             <a href="/contact" className="nav-item nav-link">Liên hệ</a>
                         </div>
@@ -170,14 +170,17 @@ const Primary = () => {
                                               <i className={`fas fa-angle-${selectedLesson === lesson.id ? 'down' : 'right'}`}></i>
                                             </a>
                                             <div className="collapse" id={`collapseSub${lesson.id}`}>
-                                              {lesson.children.map((item) => (
-                                                <a key={item.id} 
-                                                   href={`/video/${grade.name.replace(/ /g, '-')}/${book.name.replace(/ /g, '-')}/${lesson.name.replace(/ /g, '-')}/${item.name.replace(/ /g, '-')}`} 
-                                                   className="list-group-item list-group-item-action"
-                                                   style={{paddingLeft: "6rem"}}>
-                                                  {item.name}
-                                                </a>
-                                              ))}
+                                              {lesson.children.map((item) => {                                           
+                                                const pathPrefix = item.name.toLowerCase().includes('video') ? 'video' : 'exercise';
+                                                  return (
+                                                  <a key={item.id} 
+                                                     href={`/${pathPrefix}/${grade.name.replace(/ /g, '-')}/${book.name.replace(/ /g, '-')}/${lesson.name.replace(/ /g, '-')}/${item.name.replace(/ /g, '-')}`} 
+                                                     className="list-group-item list-group-item-action"
+                                                     style={{paddingLeft: "6rem"}}>
+                                                    {item.name}
+                                                  </a>
+                                                );
+                                              })}
                                             </div>
                                           </div>
                                         ))}
@@ -193,6 +196,7 @@ const Primary = () => {
                 </div>
             </div>
         </div>
+        
 
 
         <div className="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.1s">

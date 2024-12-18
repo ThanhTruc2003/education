@@ -1,46 +1,154 @@
 /* eslint-disable react/no-unknown-property */
 import { useEffect, useState } from "react";
-import DocumentFilter from "../components/Library/DocumentFilter";
+import qs from "qs";
+import ExamFilter from "../components/Review/ExamFilter";
 
-const Library = () => {
-  const [showPdf, setShowPdf] = useState(false);
-  const [selectedPdf, setSelectedPdf] = useState("");
-  const [isLoadingBooks] = useState(false);
-  const [errorBooks] = useState(null);
-  const [books, setBooks] = useState([]);
+const Review = () => {
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [expandedClass, setExpandedClass] = useState(null);
+  const [selectedContent, setSelectedContent] = useState(null);
+  const [Exams, setExam] = useState([]);
+  const [selectedExams, setSelectedExams] = useState([]);
+  const [showExamFilter, setShowExamFilter] = useState(false);
+  const [selectedExamId, setSelectedExamId] = useState(null);
 
-  const handleReadOnline = (pdfUrl) => {
-    const fullPdfUrl = `http://localhost:1337${pdfUrl}`;
-    const viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(
-      fullPdfUrl
-    )}`;
-    setSelectedPdf(viewerUrl);
-    setShowPdf(true);
+  const toggleExpand = (event, categoryId) => {
+    event.preventDefault();
+    setExpandedClass(expandedClass === categoryId ? null : categoryId);
   };
 
-  const handleDownload = (pdfUrl, fileName) => {
-    // Tải file trực tiếp bằng fetch
-    fetch(pdfUrl)
-      .then((response) => response.blob())
-      .then((blob) => {
-        // Tạo URL từ blob
-        const url = window.URL.createObjectURL(blob);
-        // Tạo thẻ a và tự động click
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName; // Sử dụng tên file được truyền vào hoặc mặc định
-        document.body.appendChild(link);
-        link.click();
-        // Cleanup
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-      })
-      .catch((err) => console.error("Lỗi khi tải file:", err));
+  const handleContentSelect = async (event, content, categoryIds) => {
+    event.preventDefault();
+    setSelectedContent(content);
+    
+    if (categoryIds.length >= 3) {
+      try {
+        const query = qs.stringify({
+          filters: {
+            $and: [
+              { exam_categories: { $eq: categoryIds[0] } },
+              { exam_categories: { $eq: categoryIds[1] } },
+              { exam_categories: { $eq: categoryIds[2] } },
+            ]
+          },
+          populate: "*"
+        }, {
+          encodeValuesOnly: true
+        });
+
+        const response = await fetch(`http://localhost:1337/api/exams?${query}`);
+        const data = await response.json();
+        setSelectedExams(data.data || []);
+      } catch (error) {
+        console.error("Lỗi khi tải đề thi:", error);
+        setSelectedExams([]);
+      }
+    }
+  };
+
+  const handleExamClick = (exam) => {
+    setSelectedExamId(exam.id);
+    setShowExamFilter(true);
   };
 
   useEffect(() => {
-    document.title = "Thư viện";
+    document.title = "Góc ôn luyện";
+    
+    const fetchCategories = async () => {
+      setIsLoading(true);
+      try {
+        const query = qs.stringify({
+          filters: {
+            parent: {
+              $null: true
+            }
+          },
+          populate: [
+            'children',
+            'children.children.exams'
+          ],
+        });
+
+        const response = await fetch(`http://localhost:1337/api/exam-categories?${query}`);
+        const data = await response.json();
+        setCategories(data.data);
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+      setIsLoading(false);
+    };
+
+    fetchCategories();
   }, []);
+
+  // Phần render sidebar
+  const renderSidebar = () => (
+    <div className="col-lg-3 wow fadeIn" data-wow-delay="0.1s">
+      <div className="bg-light p-4 rounded border border-2 border-primary">
+        <h4 className="text-white mb-4 pb-2 border-bottom border-primary bg-primary p-2 rounded"
+            style={{ textAlign: "center" }}>
+          Danh mục đề thi
+        </h4>
+        
+        {isLoading ? (
+          <div className="text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Đang tải...</span>
+            </div>
+          </div>
+        ) : (
+          categories
+            .sort((a, b) => {
+              // Lấy số lớp từ tên (ví dụ: "Lớp 3" -> 3)
+              const getGradeNumber = (name) => parseInt(name.replace("Lớp ", ""));
+              return getGradeNumber(a.name) - getGradeNumber(b.name);
+            })
+            .map((category) => (
+              <div key={category.id} className="mb-4 wow fadeIn" data-wow-delay="0.2s">
+                <h5 className="border-bottom border-secondary pb-2">
+                  {category.name}
+                </h5>
+                <div className="nav flex-column">
+                  {category.children
+                    .map((child) => (
+                      <div key={child.id}>
+                        <a href=""
+                           className="nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg"
+                           onClick={(event) => toggleExpand(event, child.id)}>
+                          {child.name}
+                          <i className={`fas ${
+                            expandedClass === child.id ? "fa-angle-down" : "fa-angle-right"
+                          } ms-2`}></i>
+                        </a>
+                        {expandedClass === child.id && (
+                          <div className="nav flex-column ps-4">
+                            {child.children?.map((semester) => (
+                              <div key={semester.id}>
+                                <a href=""
+                                   className={`nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg ${
+                                     selectedContent === `${child.name}_${semester.name}`
+                                       ? 'active'
+                                       : ''
+                                   }`}
+                                   onClick={(event) => {
+                                     handleContentSelect(event, `${child.name}_${semester.name}`, [category.id, child.id, semester.id]);
+                                   }}>
+                                  {semester.name}
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -227,14 +335,14 @@ const Library = () => {
         data-wow-delay="0.1s"
       >
         <div className="container text-center py-5">
-          <h1 className="display-2 text-white mb-4">Thư viện</h1>
+          <h1 className="display-2 text-white mb-4">Góc ôn luyện</h1>
           <nav aria-label="breadcrumb">
             <ol className="breadcrumb justify-content-center mb-0">
               <li className="breadcrumb-item">
                 <a href="/home">Trang chủ</a>
               </li>
               <li className="breadcrumb-item text-white" aria-current="page">
-                Thư viện
+                Góc ôn luyện
               </li>
             </ol>
           </nav>
@@ -244,90 +352,50 @@ const Library = () => {
       <div className="container-fluid program py-5">
         <div className="container py-5">
           <div className="row">
-            {/* Sidebar */}
-
-            <DocumentFilter setBooks={setBooks} />
-
+            {renderSidebar()}
+            
             {/* Nội dung chính */}
             <div className="col-lg-9 wow fadeIn" data-wow-delay="0.5s">
               <div className="bg-light p-4 rounded border border-2 border-primary">
-                <h4 className="text-primary mb-4 pb-2 border-bottom border-primary">
-                  Tài liệu học tập
-                </h4>
-                {books.length > 0 ? (
-                  <div>
-                    {isLoadingBooks ? (
-                      <div className="text-center">
-                        <div
-                          className="spinner-border text-primary"
-                          role="status"
-                        >
-                          <span className="visually-hidden">Đang tải...</span>
-                        </div>
-                      </div>
-                    ) : errorBooks ? (
-                      <div className="alert alert-danger">{errorBooks}</div>
-                    ) : !showPdf ? (
-                      <div className="row g-4">
-                        {books.map((book) => (
-                          <div key={book.id} className="col-md-4">
-                            <div className="text-center">
-                              <img
-                                src={`http://localhost:1337${book?.imageDocument?.[0]?.url}`}
-                                alt={book?.name || "Sách giáo khoa"}
-                                className="img-fluid mb-3 book-image"
-                              />
-                              <p className="fw-bold">{book?.name}</p>
-                              <div className="d-flex justify-content-center gap-2">
-                                <button
-                                  className="btn btn-primary"
-                                  onClick={() =>
-                                    handleReadOnline(book?.filePDF?.[0]?.url)
-                                  }
-                                >
-                                  <i className="fas fa-book-reader me-2"></i>Đọc
-                                  online
-                                </button>
-                                <button
-                                  className="btn btn-secondary"
-                                  onClick={() =>
-                                    handleDownload(
-                                      `http://localhost:1337${book?.filePDF?.[0]?.url}`,
-                                      book?.name
-                                    )
-                                  }
-                                >
-                                  <i className="fas fa-download me-2"></i>Tải
-                                  xuống
-                                </button>
-                              </div>
-                            </div>
+                <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-primary">
+                  <h4 className="text-primary mb-0">
+                    Đề thi
+                  </h4>
+                  {showExamFilter && (
+                    <button 
+                      className="btn btn-secondary"
+                      onClick={() => setShowExamFilter(false)}
+                    >
+                      <i className="fas fa-arrow-left me-2"></i>
+                      Quay lại
+                    </button>
+                  )}
+                </div>
+                
+                {showExamFilter ? (
+                  <ExamFilter setExam={setExam} examId={selectedExamId} />
+                ) : (
+                  <>
+                    {selectedExams.length > 0 ? (
+                      <>
+                        {selectedExams.map((exam) => (
+                          <div 
+                            key={exam.id} 
+                            className="d-flex justify-content-between align-items-center mb-3 p-2 bg-white rounded shadow-sm"
+                            onClick={() => handleExamClick(exam)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <h6 className="mb-0">{exam.name}</h6>
+                            <h6 className="text-primary" style={{marginTop: ".5rem"}}>Thời gian: {exam.time} phút</h6>
                           </div>
                         ))}
-                      </div>
+                      </>
                     ) : (
-                      <div>
-                        <button
-                          className="btn btn-secondary mb-3"
-                          onClick={() => setShowPdf(false)}
-                        >
-                          <i className="fas fa-arrow-left me-2"></i>Quay lại
-                        </button>
-                        <div style={{ height: "735px"}}>
-                          <iframe
-                            src={selectedPdf}
-                            width="100%"
-                            height="100%"
-                            style={{ border: "none" }}
-                          />
-                        </div>
-                      </div>
+                      <p>Vui lòng chọn danh mục ở bên phải để xem danh sách đề thi.</p>
                     )}
-                  </div>
-                ) : (
-                  <p>Vui lòng chọn lớp ở danh mục bên trái để xem tài liệu.</p>
+                  </>
                 )}
-              </div>
+              </div>            
             </div>
           </div>
         </div>
@@ -484,4 +552,4 @@ const Library = () => {
   );
 };
 
-export default Library;
+export default Review;
