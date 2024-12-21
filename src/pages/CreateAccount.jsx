@@ -171,12 +171,15 @@ const CreateAccount = () => {
                     if (foundUser) {
                         if (rememberMe) {
                             localStorage.setItem('rememberedUser', JSON.stringify({
+                                id: foundUser.id,
                                 username: formData.username,
                                 password: formData.password
                             }));
                         } else {
                             localStorage.removeItem('rememberedUser');
                         }
+                        localStorage.setItem('username', formData.username);
+                        localStorage.setItem('userId', foundUser.id);
                         navigate("/home");
                         setTimeout(() => {
                             toast.success("Đăng nhập thành công");
@@ -201,7 +204,6 @@ const CreateAccount = () => {
         }
         return result;
     }
-
 
     return (
         <Container className='form-container' style={{ paddingLeft: '0px', paddingRight: '0px' }}> 
@@ -453,9 +455,9 @@ const CreateAccount = () => {
                                 alignItems: 'center',
                                 mt: 2,  
                             }}>
-                                <FormControlLabel
+                                <FormControlLabel style={{marginLeft: '-9px', marginTop: '-10px'}}
                                     control={
-                                        <Checkbox 
+                                        <Checkbox
                                             checked={rememberMe}
                                             onChange={(e) => setRememberMe(e.target.checked)}
                                             color="primary" 

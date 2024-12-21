@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import qs from "qs";
 import ExamFilter from "../components/Review/ExamFilter";
+import { useNavigate } from 'react-router-dom';
 
 const Review = () => {
   const [categories, setCategories] = useState([]);
@@ -12,6 +13,8 @@ const Review = () => {
   const [selectedExams, setSelectedExams] = useState([]);
   const [showExamFilter, setShowExamFilter] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState(null);
+  const [username, setUsername] = useState('');
+  const navigate = useNavigate();
 
   const toggleExpand = (event, categoryId) => {
     event.preventDefault();
@@ -54,7 +57,10 @@ const Review = () => {
 
   useEffect(() => {
     document.title = "Góc ôn luyện";
-    
+    const savedUsername = localStorage.getItem('username');
+        if (savedUsername) {
+            setUsername(savedUsername);
+        }
     const fetchCategories = async () => {
       setIsLoading(true);
       try {
@@ -81,6 +87,11 @@ const Review = () => {
 
     fetchCategories();
   }, []);
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    setUsername('');
+    navigate('/tao-tai-khoan');
+};
 
   // Phần render sidebar
   const renderSidebar = () => (
@@ -274,59 +285,23 @@ const Review = () => {
                   </a>
                 </div>
               </div>
-              <button
-                className="btn-search btn btn-primary btn-md-square rounded-circle"
-                style={{ marginRight: "20px" }}
-                data-bs-toggle="modal"
-                data-bs-target="#searchModal"
-              >
-                <i className="fas fa-search text-white"></i>
-              </button>
-              <a
-                href="/tao-tai-khoan"
-                className="btn btn-primary px-4 py-3 btn-border-radius"
-              >
-                Tạo tài khoản
-              </a>
+              <div>
+                            {username ? (
+                                <div className="user-dropdown">
+                                    <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
+                                    <div className="dropdown-menu" style={{border: "0"}}>
+                                    <p className="dropdown-item" >
+                                        <span style={{ fontWeight: 'lighter' }} >Tài khoản:</span> {username}
+                                    </p>
+                                        <button onClick={handleLogout} className="dropdown-item">Đăng xuất</button>
+                                    </div>
+                                </div>
+                                ) : (
+                                    <a href="/tao-tai-khoan" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
+                                )}
+                        </div>
             </div>
           </nav>
-        </div>
-      </div>
-
-      <div
-        className="modal fade"
-        id="searchModal"
-        tabindex="-1"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-fullscreen">
-          <div className="modal-content rounded-0">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">
-                Tìm kiếm khóa học
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body d-flex align-items-center">
-              <div className="input-group w-75 mx-auto d-flex">
-                <input
-                  type="search"
-                  className="form-control p-3"
-                  placeholder="Khóa học..."
-                  aria-describedby="search-icon-1"
-                ></input>
-                <span id="search-icon-1" className="input-group-text p-3">
-                  <i className="fa fa-search"></i>
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 

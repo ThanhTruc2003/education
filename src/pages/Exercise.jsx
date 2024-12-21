@@ -14,6 +14,7 @@ function Exercise() {
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState({ correct: 0, wrong: 0, total: 0 });
   const {gradeName, bookName, lessonName, itemName } = useParams();
+  const [scoreData, setScoreData] = useState(null);
 
   useEffect(() => {
     fetchExercise();
@@ -47,6 +48,12 @@ function Exercise() {
     const remainingSeconds = (totalSeconds - elapsedSeconds) % 60;
 
     return `${minutes.toString().padStart(2, '0')} phút ${remainingSeconds.toString().padStart(2, '0')} giây`;
+  };
+
+  const formatElapsedTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, "0")} phút ${remainingSeconds.toString().padStart(2, "0")} giây`;
   };
 
   const fetchExercise = async () => {
@@ -94,6 +101,15 @@ function Exercise() {
     }));
   };
 
+  const getCurrentDate = () => {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const yyyy = today.getFullYear();
+  
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   const handleSubmit = () => {
     const newErrors = {};
     let hasUnanswered = false;
@@ -116,14 +132,14 @@ function Exercise() {
     }
   };
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async () => {
     let correctCount = 0;
     let wrongCount = 0;
-    
+  
     questions.forEach(question => {
       const selectedAnswer = answers[question.id];
       const correctAnswer = question.answers.find(answer => answer.check === true);
-      
+  
       if (selectedAnswer) {
         if (selectedAnswer === correctAnswer.id) {
           correctCount++;
@@ -132,21 +148,100 @@ function Exercise() {
         }
       }
     });
+  
+    const totalSeconds = currentExercise.time * 60;
+    const elapsedSeconds = totalSeconds - timeLeft;
 
+    const scoreData = {
+      data: {
+        user: localStorage.getItem('userId'), // Lấy từ localStorage
+        day: getCurrentDate(),
+        exercise: currentExercise.id, // ID bài tập
+        correct: correctCount, // Số câu đúng
+        wrong: wrongCount, // Số câu sai
+        total: questions.length, // Tổng số câu hỏi
+        elapsedTime: elapsedSeconds, // Thời gian làm bài
+      },
+      
+    };
+   
+  
+    try {
+      const response = await fetch('http://localhost:1337/api/scores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scoreData),
+        
+      });
+
+      if (!response.ok) {
+        throw new Error('Lỗi khi lưu điểm số');
+      }
+  
+      const result = await response.json();
+      console.log('Lưu điểm số thành công:', result);
+    } catch (error) {
+      console.error('Lỗi khi lưu điểm số:', error);
+    }
+  
     setScore({
+      day: getCurrentDate(),
       correct: correctCount,
       wrong: wrongCount,
-      total: questions.length
+      total: questions.length,
+      elapsedTime: elapsedSeconds,
     });
-
+  
     setShowResults(true);
     setShowConfirmModal(false);
-
+  
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
   };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const yyyy = date.getFullYear();
+  
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
+  
+  const fetchScoreData = async () => {
+    const userId = localStorage.getItem('userId');
+    const exerciseId = currentExercise.id;
+    
+    try {
+      const response = await fetch(
+        `http://localhost:1337/api/scores?filters[$and][0][user][$eq]=${userId}&filters[$and][1][exercise][$eq]=${exerciseId}&populate=*`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch score data');
+      }
+
+      const data = await response.json();
+    const formattedData = data.data.map(score => ({
+      ...score,
+      day: formatDate(score.day) // Assuming 'day' is the date field from the API
+    }));
+    setScoreData(formattedData);
+  } catch (error) {
+    console.error('Error fetching score data:', error);
+  }
+  };
+
+  useEffect(() => {
+    if (currentExercise && currentExercise.id) {
+      fetchScoreData();
+    }
+  }, [currentExercise]);
 
   return (
     <>
@@ -161,14 +256,50 @@ function Exercise() {
       </div>
     
     <div className="container mt-4 wow fadeIn">
+      <button 
+        className="btn btn-secondary mb-3"
+        onClick={() => window.history.back()}
+      >
+        <i className="fas fa-arrow-left me-2"></i>
+        Quay lại
+      </button>
       <h4 className="text-center" style={{fontSize: '3rem', lineHeight: '1.5'}}>{currentExercise ? currentExercise.name : 'Loading...'}</h4>
       <div className="text-center mt-4">
         {!isStarted ? (
-          <button 
-            className="btn btn-primary btn-lg mb-4"
-            onClick={handleStart}
-          >Bắt đầu làm bài
-          </button>
+          <> 
+            <h6 style={{textAlign: "justify", marginBottom: "1rem"}}>Kết quả làm bài của bạn:</h6>         
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Ngày làm</th>
+                  <th scope="col">Số câu đúng</th>
+                  <th scope="col">Số câu sai</th>
+                  <th scope="col">Thời gian làm bài</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scoreData && scoreData.length > 0 ? (
+                  scoreData.map((score) => (
+                    <tr key={score.id}>
+                      <td>{score.day}</td>
+                      <td>{score.correct}/{questions.length}</td>
+                      <td>{score.wrong}/{questions.length}</td>
+                      <td>{formatElapsedTime(score.elapsedTime)}</td>
+                    </tr>
+                  ))
+                ) : (
+                    <tr>
+                  <td colSpan="4">Chưa có dữ liệu điểm số</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <button 
+              className="btn btn-primary btn-lg mb-4"
+              onClick={handleStart}
+            >Bắt đầu làm bài
+            </button>
+          </>
         ) : (
           <h4 className="text-primary wow fadeIn mt-3">
             Thời gian còn lại: {formatTime(timeLeft)}
@@ -187,6 +318,10 @@ function Exercise() {
                 </p>
                 <p className="mb-0" style={{fontWeight: "600"}}>
                   Số câu sai: <span className="text-danger">{score.wrong}</span>/{score.total}
+                </p>
+                <p className="mb-0" style={{ fontWeight: "600" }}>
+                  Thời gian hoàn thành:{" "}
+                  <span className="text-primary">{formatElapsedTime(score.elapsedTime)}</span>
                 </p>
               </div>
             </div>

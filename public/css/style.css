@@ -1,3 +1,30 @@
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu {
+    display: none; /* Ẩn menu thả xuống mặc định */
+    position: absolute;
+    top: 100%;
+    background-color: #ffecf2;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-item {
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #4D65F9;
+    color: #FF4880;
+}
+
 .results-summary {
     max-width: 500px;
     margin: 0 auto;

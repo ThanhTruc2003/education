@@ -1,15 +1,27 @@
 /* eslint-disable react/no-unknown-property */
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const High = () => {
   const [categories, setCategories] = useState([]);
   const [selectedBook, setSelectedBook] = useState({ gradeId: null, bookId: null });
   const [selectedLesson, setSelectedLesson] = useState(null);
+  const [username, setUsername] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Trung học phổ thông';
     fetchCategories();
+    const savedUsername = localStorage.getItem('username');
+        if (savedUsername) {
+            setUsername(savedUsername);
+        }
   }, []);
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    setUsername('');
+    navigate('/tao-tai-khoan');
+};
 
   const fetchCategories = async () => {
     try {
@@ -82,32 +94,26 @@ const High = () => {
                                 <a><span className="text-secondary">0376 805 991</span></a>
                             </div>
                         </div>
-                        <button className="btn-search btn btn-primary btn-md-square rounded-circle" style={{marginRight: "20px"}} data-bs-toggle="modal" data-bs-target="#searchModal"><i className="fas fa-search text-white"></i></button>
-                        <a href="/tao-tai-khoan" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
+                        <div>
+                            {username ? (
+                                <div className="user-dropdown">
+                                    <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
+                                    <div className="dropdown-menu" style={{border: "0"}}>
+                                    <p className="dropdown-item" >
+                                        <span style={{ fontWeight: 'lighter' }} >Tài khoản:</span> {username}
+                                    </p>
+                                        <button onClick={handleLogout} className="dropdown-item">Đăng xuất</button>
+                                    </div>
+                                </div>
+                                ) : (
+                                    <a href="/tao-tai-khoan" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
+                                )}
+                        </div>
                     </div>
                 </nav>
             </div>
         </div>
-
-
-        <div className="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div className="modal-dialog modal-fullscreen">
-                <div className="modal-content rounded-0">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Tìm kiếm khóa học</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div className="modal-body d-flex align-items-center">
-                        <div className="input-group w-75 mx-auto d-flex">
-                            <input type="search" className="form-control p-3" placeholder="Khóa học..." aria-describedby="search-icon-1"></input>
-                            <span id="search-icon-1" className="input-group-text p-3"><i className="fa fa-search"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        
+  
         <div className="container-fluid page-header py-5 wow fadeIn" data-wow-delay="0.1s">
             <div className="container text-center py-5">
                 <h1 className="display-2 text-white mb-4">Trung học phổ thông</h1>

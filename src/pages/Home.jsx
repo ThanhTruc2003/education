@@ -1,9 +1,12 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Home = () => {
+    const [username, setUsername] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         document.title = "Trang chủ";
@@ -18,7 +21,18 @@ const Home = () => {
                 }, 100);
             });
         }
+
+        const savedUsername = localStorage.getItem('username');
+        if (savedUsername) {
+            setUsername(savedUsername);
+        }
     }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('username');
+        setUsername('');
+        navigate('/tao-tai-khoan');
+    };
 
     return (
     <>
@@ -77,27 +91,23 @@ const Home = () => {
                                 <a><span className="text-secondary">0376 805 991</span></a>
                             </div>
                         </div>
-                        <button className="btn-search btn btn-primary btn-md-square rounded-circle" style={{marginRight: "20px"}} data-bs-toggle="modal" data-bs-target="#searchModal"><i className="fas fa-search text-white"></i></button>
-                        <a href="/tao-tai-khoan" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
-                    </div>
-                </nav>
-            </div>
-        </div>
-        
-        <div className="modal fade" id="searchModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div className="modal-dialog modal-fullscreen">
-                <div className="modal-content rounded-0">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Tìm kiếm khóa học</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div className="modal-body d-flex align-items-center">
-                        <div className="input-group w-75 mx-auto d-flex">
-                            <input type="search" className="form-control p-3" placeholder="Khóa học..." aria-describedby="search-icon-1"/>
-                            <span id="search-icon-1" className="input-group-text p-3"><i className="fa fa-search"></i></span>
+                        <div>
+                            {username ? (
+                                <div className="user-dropdown">
+                                    <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
+                                    <div className="dropdown-menu" style={{border: "0"}}>
+                                    <p className="dropdown-item" >
+                                        <span style={{ fontWeight: 'lighter' }} >Tài khoản:</span> {username}
+                                    </p>
+                                        <button onClick={handleLogout} className="dropdown-item">Đăng xuất</button>
+                                    </div>
+                                </div>
+                                ) : (
+                                    <a href="/tao-tai-khoan" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
+                                )}
                         </div>
                     </div>
-                </div>
+                </nav>
             </div>
         </div>
 
@@ -145,7 +155,7 @@ const Home = () => {
             <div className="modal-dialog">
                 <div className="modal-content rounded-0">
                     <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Video Youtube</h5>
+                        <h5 className="modal-title" id="exampleModalLabel">Giới thiệu</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">

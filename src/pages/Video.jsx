@@ -67,6 +67,14 @@ function Video() {
       </div>
 
       <div className="container mt-3">
+        <button 
+          className="btn btn-secondary mb-2"
+          onClick={() => window.history.back()}
+        >
+          <i className="fas fa-arrow-left me-2"></i>
+          Quay lại
+        </button>
+
         {currentVideo && (
           <div>          
             <div className="ratio ratio-21x9">
@@ -76,8 +84,8 @@ function Video() {
                 allowFullScreen
               ></iframe>
             </div>
-            <h4 className="mb-4 mt-4">{currentVideo.name}</h4>
-            <div className="mt-3 d-flex gap-4">
+            <h4 className="mb-3 mt-3">{currentVideo.name}</h4>
+            <div className="mt-2 d-flex gap-4">
               <div className="d-flex align-items-center">
                 <i className="fas fa-user-circle me-2 mb-1 text-primary"></i>
                 <h6 className="mb-0">Tác giả: {currentVideo.author}</h6>

@@ -46,11 +46,16 @@ function ExamFilter({setExam}) {
     return `${minutes.toString().padStart(2, '0')} phút ${remainingSeconds.toString().padStart(2, '0')} giây`;
   };
 
+  const formatElapsedTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, "0")} phút ${remainingSeconds.toString().padStart(2, "0")} giây`;
+  };
+
   const fetchExam = async () => {
     try {
       const response = await fetch(`http://localhost:1337/api/exams?populate[0]=questions&populate[1]=questions.answers`);
       const data = await response.json();
-      console.log(data.data)
       if (data.data && data.data.length > 0) {
         setExamList(data.data);
         setCurrentExam(data.data[0]);
@@ -116,10 +121,14 @@ function ExamFilter({setExam}) {
       }
     });
 
+    const totalSeconds = currentExam.time * 60;
+    const elapsedSeconds = totalSeconds - timeLeft;
+
     setScore({
       correct: correctCount,
       wrong: wrongCount,
-      total: questions.length
+      total: questions.length,
+      elapsedTime: elapsedSeconds,
     });
 
     setShowResults(true);
@@ -160,6 +169,10 @@ function ExamFilter({setExam}) {
                 </p>
                 <p className="mb-0" style={{fontWeight: "600"}}>
                   Số câu sai: <span className="text-danger">{score.wrong}</span>/{score.total}
+                </p>
+                <p className="mb-0" style={{ fontWeight: "600" }}>
+                  Thời gian hoàn thành:{" "}
+                  <span className="text-primary">{formatElapsedTime(score.elapsedTime)}</span>
                 </p>
               </div>
             </div>
