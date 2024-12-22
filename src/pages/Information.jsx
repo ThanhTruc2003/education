@@ -1,25 +1,35 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const High = () => {
-  const [categories, setCategories] = useState([]);
-  const [selectedBook, setSelectedBook] = useState({ gradeId: null, bookId: null });
-  const [selectedLesson, setSelectedLesson] = useState(null);
-  const [username, setUsername] = useState('');
-  const navigate = useNavigate();
+const Information = () => {
+    const [username, setUsername] = useState('');
+    const [userInfo, setUserInfo] = useState(null);
+    const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Trung học phổ thông';
-    fetchCategories();
+    document.title = 'Thông tin cá nhân';
     const savedUsername = localStorage.getItem('username');
+    const userId = localStorage.getItem('userId');
         if (savedUsername) {
             setUsername(savedUsername);
         }
+        if (userId) {
+            fetchUserInfo(userId);
+        }
   }, []);
-
-  const handleAccountClick = () => {
-    navigate('/information');
+  
+  const fetchUserInfo = async (userId) => {
+    try {
+        const response = await fetch(`http://localhost:1337/api/users?filters[id][$eq]=${userId}`);
+        const data = await response.json();
+        console.log('data:', data);
+        if (data && data.length > 0) {
+            setUserInfo(data[0]);
+        }
+    } catch (error) {
+        console.error('Lỗi khi tải thông tin người dùng:', error);
+    }
 };
 
   const handleLogout = () => {
@@ -30,24 +40,13 @@ const High = () => {
     navigate('/tao-tai-khoan');
 };
 
-  const fetchCategories = async () => {
-    try {
-      // Trước tiên lấy category có name = "THPT"
-      const categoryResponse = await fetch('http://localhost:1337/api/cousre-categories?filters[name][$eq]=THPT');
-      const categoryData = await categoryResponse.json();
-      
-      if (categoryData.data && categoryData.data.length > 0) {
-        const primaryId = categoryData.data[0].id;
-        
-        // Sau đó dùng id này để lấy chi tiết
-        const response = await fetch(`http://localhost:1337/api/cousre-categories?filters[parent][$null]=true&populate[0]=children&populate[1]=children.children&populate[2]=children.children.children&populate[3]=children.children.children.children&filters[id]=${primaryId}`);
-        const data = await response.json();
-        setCategories(data.data);
-      }
-    } catch (error) {
-      console.error('Lỗi khi tải dữ liệu:', error);
-    }
-  };
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+};
 
   return (
     <>
@@ -87,6 +86,7 @@ const High = () => {
                             <a href="/library" className="nav-item nav-link">Thư viện</a>
                             <a href="/contact" className="nav-item nav-link">Liên hệ</a>
                         </div>
+                        
                         <div className="d-flex me-4">
                             <div id="phone-tada" className="d-flex align-items-center justify-content-center">
                                 <a href="" className="position-relative wow tada" data-wow-delay=".9s" >
@@ -107,7 +107,7 @@ const High = () => {
                                     <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
                                     <div className="dropdown-menu" style={{border: "0"}}>
                                     <p className="dropdown-item" >
-                                    <span style={{ fontWeight: 'lighter', cursor: "pointer"}} onClick={handleAccountClick} >Tài khoản:</span> {username}
+                                        <span style={{ fontWeight: 'lighter' }} >Tài khoản:</span> {username}
                                     </p>
                                         <button onClick={handleLogout} className="dropdown-item">Đăng xuất</button>
                                     </div>
@@ -120,92 +120,25 @@ const High = () => {
                 </nav>
             </div>
         </div>
-  
-        <div className="container-fluid page-header py-5 wow fadeIn" data-wow-delay="0.1s">
-            <div className="container text-center py-5">
-                <h1 className="display-2 text-white mb-4">Trung học phổ thông</h1>
-                <nav aria-label="breadcrumb">
-                    <ol className="breadcrumb justify-content-center mb-0">
-                        <li className="breadcrumb-item"><a href="/home">Trang chủ</a></li>
-                        <li className="breadcrumb-item"><a>Khóa học</a></li>
-                        <li className="breadcrumb-item text-white" aria-current="page">Trung học phổ thông</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-
-
-        <div className="container-fluid blog py-5">
-            <div className="container py-5">
-                <div className="row g-4">
-                    {categories.length > 0 && categories[0].children
-                      .sort((a, b) => {
-                        // Lấy số lớp từ tên (ví dụ: "Lớp 3" -> 3)
-                        const getGradeNumber = (name) => parseInt(name.replace("Lớp ", ""));
-                        return getGradeNumber(a.name) - getGradeNumber(b.name);
-                      })
-                      .map((grade) => (
-                        <div className="col-md-12 mb-4 wow fadeIn" 
-                             data-wow-delay="0.2s" 
-                             key={grade.id}>
-                          <div className="card border-2 border-primary shadow-sm">
-                            <div className="card-header bg-primary text-white">
-                              <h4 className="mb-0 d-flex justify-content-between align-items-center">
-                                {grade.name}
-                              </h4>
-                            </div>
-                            <div className="card-body">
-                              <div className="list-group">
-                                {grade.children.map((book) => (
-                                  <div key={book.id}>
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       onClick={() => {
-                                         if (selectedBook.gradeId === grade.id && selectedBook.bookId === book.id) {
-                                           setSelectedBook({ gradeId: null, bookId: null });
-                                         } else {
-                                           setSelectedBook({ gradeId: grade.id, bookId: book.id });
-                                         }
-                                       }}
-                                       style={{cursor: 'pointer'}}>
-                                      {book.name}
-                                      <i className={`fas fa-angle-${selectedBook.gradeId === grade.id && selectedBook.bookId === book.id ? 'down' : 'right'}`}></i>
-                                    </a>
-                                    {selectedBook.gradeId === grade.id && selectedBook.bookId === book.id && (
-                                      <div className="collapse show" id={`collapse${book.id}`}>
-                                        {book.children.map((lesson) => (
-                                          <div key={lesson.id}>
-                                            <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center ps-5" 
-                                               onClick={() => setSelectedLesson(selectedLesson === lesson.id ? null : lesson.id)}
-                                               data-bs-toggle="collapse"
-                                               href={`#collapseSub${lesson.id}`}
-                                               style={{cursor: 'pointer'}}>
-                                              {lesson.name}
-                                              <i className={`fas fa-angle-${selectedLesson === lesson.id ? 'down' : 'right'}`}></i>
-                                            </a>
-                                            <div className="collapse" id={`collapseSub${lesson.id}`}>
-                                            {lesson.children.map((item) => {                                           
-                                                const pathPrefix = item.name.toLowerCase().includes('video') ? 'video' : 'exercise';
-                                                  return (
-                                                  <a key={item.id} 
-                                                     href={`/${pathPrefix}/${grade.name.replace(/ /g, '-')}/${book.name.replace(/ /g, '-')}/${lesson.name.replace(/ /g, '-')}/${item.name.replace(/ /g, '-')}`} 
-                                                     className="list-group-item list-group-item-action"
-                                                     style={{paddingLeft: "6rem"}}>
-                                                    {item.name}
-                                                  </a>
-                                                );
-                                              })}
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+        
+        <div className="container-fluid py-5">
+            <div className="container py-5 d-flex justify-content-center">
+                <div className="p-5 bg-light rounded" style={{width: "500px"}}>
+                    <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{ maxWidth: '700px' }}>
+                        <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">THÔNG TIN CÁ NHÂN</h4>
+                            {userInfo ? (
+                                <div style={{textAlign: "justify", marginLeft: "4.5rem"}}>
+                                    <p><strong>Tên đăng nhập:</strong> {userInfo.username}</p>
+                                    <p><strong>Email:</strong> {userInfo.email}</p>
+                                    <p><strong>Giới tính:</strong> {userInfo.gender ? 'Nữ' : 'Nam'}</p>
+                                    <p><strong>Ngày sinh:</strong> {formatDate(userInfo.dateOfBirth)}</p>
+                                    <p><strong>Địa chỉ:</strong> {userInfo.address}</p>
+                                    <p><strong>Số điện thoại:</strong> {userInfo.phoneNumber}</p>
+                                </div>
+                                ) : (
+                                    <p>Đang tải thông tin...</p>
+                                )}
+                    </div>             
                 </div>
             </div>
         </div>
@@ -224,7 +157,7 @@ const High = () => {
                                 trong các kỳ thi.</p>
                         </div>
                     </div>
-                
+
                     <div className="col-md-6 col-lg-4 col-xl-3" style={{marginLeft: "330px"}}>
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Địa điểm</h4>
@@ -236,6 +169,7 @@ const High = () => {
                             </div>
                         </div>
                     </div>
+
                     <div className="col-md-6 col-lg-4 col-xl-3">
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Thư viện ảnh</h4>
@@ -277,7 +211,6 @@ const High = () => {
             </div>
         </div>
 
-
         <div className="container-fluid copyright bg-dark py-4">
             <div className="container">
                 <div className="row">
@@ -296,4 +229,4 @@ const High = () => {
   );
 }
 
-export default High;
+export default Information;

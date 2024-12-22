@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ExamFilter({setExam}) {
   const [ExamList, setExamList] = useState([]);
@@ -11,6 +13,7 @@ function ExamFilter({setExam}) {
   const [errors, setErrors] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState({ correct: 0, wrong: 0, total: 0 });
+  const [scoreData, setScoreData] = useState(null);
 
   useEffect(() => {
     fetchExam();
@@ -68,6 +71,10 @@ function ExamFilter({setExam}) {
   };
 
   const handleStart = () => {
+    if (!localStorage.getItem('userId')) {
+        toast.warning('Vui lòng đăng nhập để làm bài');
+        return;
+    }
     setIsStarted(true);
   };
 
@@ -80,6 +87,15 @@ function ExamFilter({setExam}) {
       ...prev,
       [questionId]: false
     }));
+  };
+
+  const getCurrentDate = () => {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const yyyy = today.getFullYear();
+  
+    return `${yyyy}-${mm}-${dd}`;
   };
 
   const handleSubmit = () => {
@@ -104,7 +120,7 @@ function ExamFilter({setExam}) {
     }
   };
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async () => {
     let correctCount = 0;
     let wrongCount = 0;
     
@@ -123,8 +139,42 @@ function ExamFilter({setExam}) {
 
     const totalSeconds = currentExam.time * 60;
     const elapsedSeconds = totalSeconds - timeLeft;
+    
+    const scoreData = {
+      data: {
+        user: localStorage.getItem('userId'), // Lấy từ localStorage
+        day: getCurrentDate(),
+        exam: currentExam.id, // ID bài tập
+        correct: correctCount, // Số câu đúng
+        wrong: wrongCount, // Số câu sai
+        total: questions.length, // Tổng số câu hỏi
+        elapsedTime: elapsedSeconds, // Thời gian làm bài
+      },
+      
+    };
+   
+    try {
+      const response = await fetch('http://localhost:1337/api/score-exams', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scoreData),
+        
+      });
+
+      if (!response.ok) {
+        throw new Error('Lỗi khi lưu điểm số');
+      }
+  
+      const result = await response.json();
+      console.log('Lưu điểm số thành công:', result);
+    } catch (error) {
+      console.error('Lỗi khi lưu điểm số:', error);
+    }
 
     setScore({
+      day: getCurrentDate(),
       correct: correctCount,
       wrong: wrongCount,
       total: questions.length,
@@ -140,17 +190,86 @@ function ExamFilter({setExam}) {
     });
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const yyyy = date.getFullYear();
+  
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
+  const fetchScoreData = async () => {
+    const userId = localStorage.getItem('userId');
+    const examId = currentExam.id;
+    
+    try {
+      const response = await fetch(
+        `http://localhost:1337/api/score-exams?filters[$and][0][user][$eq]=${userId}&filters[$and][1][exam][$eq]=${examId}&populate=*`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch score data');
+      }
+
+      const data = await response.json();
+    const formattedData = data.data.map(score => ({
+      ...score,
+      day: formatDate(score.day) // Assuming 'day' is the date field from the API
+    }));
+    setScoreData(formattedData);
+  } catch (error) {
+    console.error('Error fetching score data:', error);
+  }
+  };
+
+  useEffect(() => {
+    if (currentExam && currentExam.id) {
+      fetchScoreData();
+    }
+  }, [currentExam]);
+
   return (
     <>
     <div className="container mt-4 wow fadeIn">
       <h4 className="text-center" style={{fontSize: '3rem', lineHeight: '1.5'}}>{currentExam ? currentExam.name : 'Loading...'}</h4>
+      <ToastContainer />
       <div className="text-center mt-4">
-        {!isStarted ? (
-          <button 
-            className="btn btn-primary btn-lg mb-4"
-            onClick={handleStart}
-          >Bắt đầu làm bài
-          </button>
+      {!isStarted ? (
+          <> 
+            <h6 style={{textAlign: "justify", marginBottom: "1rem"}}>Kết quả làm bài của bạn:</h6>         
+            <table className="table table-bordered" style={{borderColor: "black"}}>
+              <thead>
+                <tr>
+                  <th scope="col">Ngày làm</th>
+                  <th scope="col">Số câu đúng</th>
+                  <th scope="col">Số câu sai</th>
+                  <th scope="col">Thời gian làm bài</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scoreData && scoreData.length > 0 ? (
+                  scoreData.map((score) => (
+                    <tr key={score.id}>
+                      <td>{score.day}</td>
+                      <td>{score.correct}/{questions.length}</td>
+                      <td>{score.wrong}/{questions.length}</td>
+                      <td>{formatElapsedTime(score.elapsedTime)}</td>
+                    </tr>
+                  ))
+                ) : (
+                    <tr>
+                  <td colSpan="4">Chưa có dữ liệu điểm số</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <button 
+              className="btn btn-primary btn-lg mb-4"
+              onClick={handleStart}
+            >Bắt đầu làm bài
+            </button>
+          </>
         ) : (
           <h4 className="text-primary wow fadeIn mt-3">
             Thời gian còn lại: {formatTime(timeLeft)}

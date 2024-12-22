@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import qs from 'qs';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Exercise() {
   const [exerciseList, setExerciseList] = useState([]);
@@ -87,6 +89,10 @@ function Exercise() {
   };
 
   const handleStart = () => {
+    if (!localStorage.getItem('userId')) {
+      toast.warning('Vui lòng đăng nhập để làm bài');
+      return;
+    }
     setIsStarted(true);
   };
 
@@ -148,6 +154,7 @@ function Exercise() {
         }
       }
     });
+    
   
     const totalSeconds = currentExercise.time * 60;
     const elapsedSeconds = totalSeconds - timeLeft;
@@ -264,6 +271,7 @@ function Exercise() {
         Quay lại
       </button>
       <h4 className="text-center" style={{fontSize: '3rem', lineHeight: '1.5'}}>{currentExercise ? currentExercise.name : 'Loading...'}</h4>
+      <ToastContainer />
       <div className="text-center mt-4">
         {!isStarted ? (
           <> 

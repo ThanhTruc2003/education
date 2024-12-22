@@ -121,7 +121,7 @@ const CreateAccount = () => {
 
         const userExists = existingUsers.some(user => user.username === formData.username);
         if (userExists) {
-            toast.error("Tài khoản đã tồn tại");
+            toast.error("Tên đăng nhập đã tồn tại");
             return;
         }
 
@@ -140,6 +140,8 @@ const CreateAccount = () => {
             });
             const result = await response.json();
             if (response.ok) {
+                localStorage.setItem('userId', result.id);
+                localStorage.setItem('username', formData.username);
                 navigate("/home");
                 setTimeout(() => {
                     toast.success("Đăng ký thành công");
@@ -156,43 +158,61 @@ const CreateAccount = () => {
     const handleSubmitLogin = async (e) => {
         e.preventDefault();
         if (validate()) {
-            fetch('http://localhost:1337/api/users/')
-                .then((res) => {
-                    if (!res.ok) {
-                        throw new Error('Không thể kiểm tra tài khoản');
-                    }
-                    return res.json();
-                })
-                .then((resp) => {
-                    const foundUser = resp.find(
-                        (user) => user.username === formData.username
-                    );
+            const loginData = {
+                identifier: formData.username, // 'identifier' có thể là username hoặc email
+                password: formData.password,
+            };
     
-                    if (foundUser) {
-                        if (rememberMe) {
-                            localStorage.setItem('rememberedUser', JSON.stringify({
-                                id: foundUser.id,
-                                username: formData.username,
-                                password: formData.password
-                            }));
-                        } else {
-                            localStorage.removeItem('rememberedUser');
-                        }
-                        localStorage.setItem('username', formData.username);
-                        localStorage.setItem('userId', foundUser.id);
-                        navigate("/home");
-                        setTimeout(() => {
-                            toast.success("Đăng nhập thành công");
-                        }, 100);
-                    } else {
-                        toast.error("Tên đăng nhập không tồn tại");
-                        setFormData({ username: "", password: "" });
-                    }
-                })
-                .catch((err) => {
-                    console.error(err);
-                    toast.error("Đăng nhập thất bại");
+            try {
+                const res = await fetch('http://localhost:1337/api/auth/local', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData),
                 });
+    
+                if (!res.ok) {
+                    // Kiểm tra mã lỗi và hiển thị thông báo phù hợp
+                    const errorData = await res.json();
+                    if (errorData?.error?.message === 'Invalid identifier or password') {
+                        toast.error('Tên đăng nhập hoặc mật khẩu không đúng');
+                    } else {
+                        toast.error('Đăng nhập thất bại. Vui lòng thử lại');
+                    }
+                    return;
+                }
+    
+                const resp = await res.json();
+    
+                // Lưu thông tin người dùng và token
+                const { jwt, user } = resp;
+    
+                if (rememberMe) {
+                    localStorage.setItem(
+                        'rememberedUser',
+                        JSON.stringify({
+                            id: user.id,
+                            username: user.username,
+                            password: formData.password,
+                        })
+                    );
+                } else {
+                    localStorage.removeItem('rememberedUser');
+                }
+    
+                localStorage.setItem('username', user.username);
+                localStorage.setItem('userId', user.id);
+                localStorage.setItem('token', jwt); // Lưu token để sử dụng cho các API khác
+    
+                navigate('/home');
+                setTimeout(() => {
+                    toast.success('Đăng nhập thành công');
+                }, 100);
+            } catch (err) {
+                console.error(err);
+                toast.error('Đăng nhập thất bại. Vui lòng thử lại');
+            }
         }
     };
 

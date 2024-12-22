@@ -49,8 +49,14 @@ const Library = () => {
         }
   }, []);
 
+  const handleAccountClick = () => {
+    navigate('/information');
+};
+
   const handleLogout = () => {
     localStorage.removeItem('username');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     setUsername('');
     navigate('/tao-tai-khoan');
 };
@@ -185,7 +191,7 @@ const Library = () => {
                                     <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
                                     <div className="dropdown-menu" style={{border: "0"}}>
                                     <p className="dropdown-item" >
-                                        <span style={{ fontWeight: 'lighter' }} >Tài khoản:</span> {username}
+                                    <span style={{ fontWeight: 'lighter', cursor: "pointer"}} onClick={handleAccountClick} >Tài khoản:</span> {username}
                                     </p>
                                         <button onClick={handleLogout} className="dropdown-item">Đăng xuất</button>
                                     </div>
