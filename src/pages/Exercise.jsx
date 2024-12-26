@@ -60,7 +60,7 @@ function Exercise() {
 
   const fetchExercise = async () => {
     const query = qs.stringify({
-      populate: ['questions', 'questions.answers'],
+      populate: ['questions', 'questions.answers', 'questions.image'],
       filters: {
         $and: [
           { course_categories: { name: { $eq: gradeName.replace(/-/g, ' ') } } },
@@ -74,10 +74,11 @@ function Exercise() {
     });
 
     try {
-      const response = await fetch(`http://localhost:1337/api/exercises?${query}`);
+      const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/exercises?${query}`);
       const data = await response.json();
       if (data.data && data.data.length > 0) {
         setExerciseList(data.data);
+        console.log(data.data);
         setCurrentExercise(data.data[0]);
         setQuestions(data.data[0].questions);
         setTimeLeft(data.data[0].time * 60);
@@ -110,7 +111,7 @@ function Exercise() {
   const getCurrentDate = () => {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); 
     const yyyy = today.getFullYear();
   
     return `${yyyy}-${mm}-${dd}`;
@@ -171,10 +172,11 @@ function Exercise() {
       },
       
     };
-   
+    console.log(currentExercise.id);
+    console.log(scoreData);
   
     try {
-      const response = await fetch('http://localhost:1337/api/scores', {
+      const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/scores`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,6 +184,7 @@ function Exercise() {
         body: JSON.stringify(scoreData),
         
       });
+
 
       if (!response.ok) {
         throw new Error('Lỗi khi lưu điểm số');
@@ -226,23 +229,29 @@ function Exercise() {
     
     try {
       const response = await fetch(
-        `http://localhost:1337/api/scores?filters[$and][0][user][$eq]=${userId}&filters[$and][1][exercise][$eq]=${exerciseId}&populate=*`
+        `${import.meta.env.VITE_API_ENDPOINT}/api/scores?filters[$and][0][user][$eq]=${userId}&filters[$and][1][exercise][$eq]=${exerciseId}&populate=*`
       );
 
       if (!response.ok) {
         throw new Error('Failed to fetch score data');
       }
 
-      const data = await response.json();
-    const formattedData = data.data.map(score => ({
+    const data = await response.json();
+    const formattedData = data.data
+    .map(score => ({
       ...score,
-      day: formatDate(score.day) // Assuming 'day' is the date field from the API
+      day: new Date(score.day) // Chuyển đổi chuỗi ngày thành đối tượng Date để sắp xếp
+    }))
+    .sort((a, b) => a.day - b.day) // Sắp xếp ngày theo thứ tự tăng dần
+    .map(score => ({
+      ...score,
+      day: formatDate(score.day) // Định dạng lại ngày thành chuỗi sau khi sắp xếp
     }));
     setScoreData(formattedData);
   } catch (error) {
     console.error('Error fetching score data:', error);
   }
-  };
+};
 
   useEffect(() => {
     if (currentExercise && currentExercise.id) {
@@ -335,70 +344,77 @@ function Exercise() {
             </div>
           )}
           <div>
-            {questions.map((question) => (
-              <div 
-                key={question.id} 
-                className={`card mb-4 ${errors[question.id] ? 'question-error' : ''}`}
-                style={{
-                  border: errors[question.id] ? '1px solid #dc3545' : '1px solid rgba(0,0,0,.125)', marginTop: '2rem'
-                }}
-              >
-                <div className="card-body">
-                  <h5 className="card-title">{question.name}</h5>
-                  
-                  {question.answers && question.answers.length > 0 && (
-                    <div className="answers-list mt-3" style={{marginLeft: '1rem'}}>
-                      {question.answers.map((answer) => (
-                        <div 
-                          key={answer.id} 
-                          className={`form-check mb-2 ${
-                            showResults ? 
-                              answer.check ? 'text-success' : 
-                              answers[question.id] === answer.id ? 'text-danger' : 
-                              '' 
-                            : ''
-                          }`}
-                          style={{
-                            backgroundColor: showResults ? 
-                              answer.check ? 'rgba(25, 135, 84, 0.1)' : 
-                              answers[question.id] === answer.id ? 'rgba(220, 53, 69, 0.1)' : 
-                              'transparent'
-                            : 'transparent',
-                            borderRadius: '5px'
-                          }}
-                        >
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name={`question-${question.id}`}
-                            id={`answer-${answer.id}`}
-                            checked={answers[question.id] === answer.id}
-                            onChange={() => handleAnswerSelect(question.id, answer.id)}
-                            disabled={showResults}
-                          />
-                          <label className="form-check-label" style={{fontSize: 'large'}} htmlFor={`answer-${answer.id}`}>
-                            {answer.name}
-                            {showResults && answer.check && (
-                              <i className="fas fa-check ms-2 text-success"></i>
-                            )}
-                            {showResults && !answer.check && answers[question.id] === answer.id && (
-                              <i className="fas fa-times ms-2 text-danger"></i>
-                            )}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {errors[question.id] && (
-                    <div className="text-danger mt-2" style={{fontSize: '0.875rem'}}>
-                      Vui lòng chọn đáp án
-                    </div>
-                  )}
+  {questions
+    .sort((a, b) => a.order - b.order)
+    .map((question) => (
+      <div 
+        key={question.id} 
+        className={`card mb-4 ${errors[question.id] ? 'question-error' : ''}`}
+        style={{
+          border: errors[question.id] ? '1px solid #dc3545' : '1px solid rgba(0,0,0,.125)', marginTop: '2rem'
+        }}
+      >
+        <div className="card-body">
+          <h5 className="card-title">{question.name}</h5>
+          {question.image && (
+            <div className="question-image">                    
+              <img src={`${import.meta.env.VITE_API_ENDPOINT}${question.image.url}`} alt="Question" style={{ maxWidth: '100%', height: 'auto' }} />
+            </div>
+          )}
+          
+          {question.answers && question.answers.length > 0 && (
+            <div className="answers-list mt-3" style={{marginLeft: '1rem'}}>
+              {question.answers.map((answer) => (
+                <div 
+                  key={answer.id} 
+                  className={`form-check mb-2 ${
+                    showResults ? 
+                      answer.check ? 'text-success' : 
+                      answers[question.id] === answer.id ? 'text-danger' : 
+                      '' 
+                    : ''
+                  }`}
+                  style={{
+                    backgroundColor: showResults ? 
+                      answer.check ? 'rgba(25, 135, 84, 0.1)' : 
+                      answers[question.id] === answer.id ? 'rgba(220, 53, 69, 0.1)' : 
+                      'transparent'
+                    : 'transparent',
+                    borderRadius: '5px'
+                  }}
+                >
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name={`question-${question.id}`}
+                    id={`answer-${answer.id}`}
+                    checked={answers[question.id] === answer.id}
+                    onChange={() => handleAnswerSelect(question.id, answer.id)}
+                    disabled={showResults}
+                  />
+                  <label className="form-check-label" style={{fontSize: 'large'}} htmlFor={`answer-${answer.id}`}>
+                    {answer.name}
+                    {showResults && answer.check && (
+                      <i className="fas fa-check ms-2 text-success"></i>
+                    )}
+                    {showResults && !answer.check && answers[question.id] === answer.id && (
+                      <i className="fas fa-times ms-2 text-danger"></i>
+                    )}
+                  </label>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+          
+          {errors[question.id] && (
+            <div className="text-danger mt-2" style={{fontSize: '0.875rem'}}>
+              Vui lòng chọn đáp án
+            </div>
+          )}
+        </div>
+      </div>
+    ))}
+</div>
 
           {!showResults && (
             <div className="text-center mt-4 mb-5">

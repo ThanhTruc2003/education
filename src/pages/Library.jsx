@@ -13,7 +13,7 @@ const Library = () => {
   const navigate = useNavigate();
 
   const handleReadOnline = (pdfUrl) => {
-    const fullPdfUrl = `http://localhost:1337${pdfUrl}`;
+    const fullPdfUrl = `${import.meta.env.VITE_API_ENDPOINT}${pdfUrl}`;
     const viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(
       fullPdfUrl
     )}`;
@@ -53,12 +53,16 @@ const Library = () => {
     navigate('/information');
 };
 
+  function handleChangePassword() {
+    navigate('/change-password');
+}
+
   const handleLogout = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     setUsername('');
-    navigate('/tao-tai-khoan');
+    navigate('/create-account');
 };
 
   return (
@@ -190,14 +194,19 @@ const Library = () => {
                                 <div className="user-dropdown">
                                     <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
                                     <div className="dropdown-menu" style={{border: "0"}}>
-                                    <p className="dropdown-item" >
-                                    <span style={{ fontWeight: 'lighter', cursor: "pointer"}} onClick={handleAccountClick} >Tài khoản:</span> {username}
-                                    </p>
-                                        <button onClick={handleLogout} className="dropdown-item">Đăng xuất</button>
+                      <p className="dropdown-item" style={{marginBottom: "0px"}}>
+                        <i className="fa fa-user" style={{ marginRight: '10px' }}></i>
+                        <span style={{ fontWeight: 'lighter', cursor: "pointer"}} onClick={handleAccountClick} >Tài khoản:</span> {username}
+                          </p>
+                                        <button onClick={handleChangePassword} className="dropdown-item">
+                                            <i className="fa fa-key" style={{ marginRight: '10px' }}></i>Đổi mật khẩu</button>
+                                        <div className="dropdown-divider"></div>
+                                        <button onClick={handleLogout} className="dropdown-item">
+                                            <i className="fa fa-sign-in-alt" style={{ marginRight: '10px' }}></i>Đăng xuất</button>
                                     </div>
                                 </div>
                                 ) : (
-                                    <a href="/tao-tai-khoan" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
+                                    <a href="/create-account" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
                                 )}
                         </div>
             </div>
@@ -256,7 +265,7 @@ const Library = () => {
                           <div key={book.id} className="col-md-4">
                             <div className="text-center">
                               <img
-                                src={`http://localhost:1337${book?.imageDocument?.[0]?.url}`}
+                                src={`${import.meta.env.VITE_API_ENDPOINT}${book?.imageDocument?.[0]?.url}`}
                                 alt={book?.name || "Sách giáo khoa"}
                                 className="img-fluid mb-3 book-image"
                               />
@@ -275,7 +284,7 @@ const Library = () => {
                                   className="btn btn-secondary"
                                   onClick={() =>
                                     handleDownload(
-                                      `http://localhost:1337${book?.filePDF?.[0]?.url}`,
+                                      `${import.meta.env.VITE_API_ENDPOINT}${book?.filePDF?.[0]?.url}`,
                                       book?.name
                                     )
                                   }

@@ -27,7 +27,7 @@ function Video() {
     });
 
     try {
-      const response = await fetch(`http://localhost:1337/api/lessons?${query}`);
+      const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/lessons?${query}`);
       const data = await response.json();
       if (data.data && data.data.length > 0) {
         setVideoList(data.data);

@@ -1,30 +1,36 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Primary = () => {
-  const [categories, setCategories] = useState([]);
-  const [selectedBook, setSelectedBook] = useState({ gradeId: null, bookId: null });
-  const [selectedLesson, setSelectedLesson] = useState(null);
-  const [username, setUsername] = useState('');
-  const navigate = useNavigate();
+const ChangePassword = () => {
+    const [username, setUsername] = useState('');
+    const [userInfo, setUserInfo] = useState(null);
+    const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Tiểu học';
+    document.title = 'Đổi mật khẩu';
     const savedUsername = localStorage.getItem('username');
+    const userId = localStorage.getItem('userId');
         if (savedUsername) {
             setUsername(savedUsername);
         }
-    fetchCategories();
+        if (userId) {
+            fetchUserInfo(userId);
+        }
   }, []);
   
-  const handleAccountClick = () => {
-    navigate('/information');
+  const fetchUserInfo = async (userId) => {
+    try {
+        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/users?filters[id][$eq]=${userId}`);
+        const data = await response.json();
+        console.log('data:', data);
+        if (data && data.length > 0) {
+            setUserInfo(data[0]);
+        }
+    } catch (error) {
+        console.error('Lỗi khi tải thông tin người dùng:', error);
+    }
 };
-
-  function handleChangePassword() {
-    navigate('/change-password');
-}
 
   const handleLogout = () => {
     localStorage.removeItem('username');
@@ -34,24 +40,17 @@ const Primary = () => {
     navigate('/create-account');
 };
 
-  const fetchCategories = async () => {
-    try {
-      // Trước tiên lấy category có name = "Tiểu học"
-      const categoryResponse = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/cousre-categories?filters[name][$eq]=Tiểu học`);
-      const categoryData = await categoryResponse.json();
-      
-      if (categoryData.data && categoryData.data.length > 0) {
-        const primaryId = categoryData.data[0].id;
-        
-        // Sau đó dùng id này để lấy chi tiết
-        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/cousre-categories?filters[parent][$null]=true&populate[0]=children&populate[1]=children.children&populate[2]=children.children.children&populate[3]=children.children.children.children&filters[id]=${primaryId}`);
-        const data = await response.json();
-        setCategories(data.data);
-      }
-    } catch (error) {
-      console.error('Lỗi khi tải dữ liệu:', error);
-    }
-  };
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+};
+
+const handleAccountClick = () => {
+    navigate('/information');
+};
 
   return (
     <>
@@ -91,6 +90,7 @@ const Primary = () => {
                             <a href="/library" className="nav-item nav-link">Thư viện</a>
                             <a href="/contact" className="nav-item nav-link">Liên hệ</a>
                         </div>
+                        
                         <div className="d-flex me-4">
                             <div id="phone-tada" className="d-flex align-items-center justify-content-center">
                                 <a href="" className="position-relative wow tada" data-wow-delay=".9s" >
@@ -110,15 +110,15 @@ const Primary = () => {
                                 <div className="user-dropdown">
                                     <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
                                     <div className="dropdown-menu" style={{border: "0"}}>
-                      <p className="dropdown-item" style={{marginBottom: "0px"}}>
-                        <i className="fa fa-user" style={{ marginRight: '10px' }}></i>
-                        <span style={{ fontWeight: 'lighter', cursor: "pointer"}} onClick={handleAccountClick} >Tài khoản:</span> {username}
-                          </p>
-                                        <button onClick={handleChangePassword} className="dropdown-item">
+                                    <p className="dropdown-item" style={{marginBottom: "0px"}}>
+                                        <i className="fa fa-user" style={{ marginRight: '10px' }}></i>
+                                        <span style={{ fontWeight: 'lighter', cursor: "pointer"}} onClick={handleAccountClick} >Tài khoản:</span> {username}
+                                    </p>
+                                        <button className="dropdown-item">
                                             <i className="fa fa-key" style={{ marginRight: '10px' }}></i>Đổi mật khẩu</button>
                                         <div className="dropdown-divider"></div>
                                         <button onClick={handleLogout} className="dropdown-item">
-                                            <i className="fa fa-sign-in-alt" style={{ marginRight: '10px' }}></i>Đăng xuất</button>
+                                            <i class="fa fa-sign-in-alt" style={{ marginRight: '10px' }}></i>Đăng xuất</button>
                                     </div>
                                 </div>
                                 ) : (
@@ -129,97 +129,28 @@ const Primary = () => {
                 </nav>
             </div>
         </div>
-       
-        <div className="container-fluid page-header py-5 wow fadeIn" data-wow-delay="0.1s">
-            <div className="container text-center py-5">
-                <h1 className="display-2 text-white mb-4">Tiểu học</h1>
-                <nav aria-label="breadcrumb">
-                    <ol className="breadcrumb justify-content-center mb-0">
-                        <li className="breadcrumb-item"><a href="/home">Trang chủ</a></li>
-                        <li className="breadcrumb-item"><a>Khóa học</a></li>
-                        <li className="breadcrumb-item text-white" aria-current="page">Tiểu học</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-
-
-        <div className="container-fluid blog py-5">
-            <div className="container py-5">
-                <div className="row g-4">
-                    {categories.length > 0 && categories[0].children
-                      .sort((a, b) => {
-                        // Lấy số lớp từ tên (ví dụ: "Lớp 3" -> 3)
-                        const getGradeNumber = (name) => parseInt(name.replace("Lớp ", ""));
-                        return getGradeNumber(a.name) - getGradeNumber(b.name);
-                      })
-                      .map((grade) => (
-                        <div className="col-md-12 mb-4 wow fadeIn" 
-                             data-wow-delay="0.2s" 
-                             key={grade.id}>
-                          <div className="card border-2 border-primary shadow-sm">
-                            <div className="card-header bg-primary text-white">
-                              <h4 className="mb-0 d-flex justify-content-between align-items-center">
-                                {grade.name}
-                              </h4>
-                            </div>
-                            <div className="card-body">
-                              <div className="list-group">
-                                {grade.children.map((book) => (
-                                  <div key={book.id}>
-                                    <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                       onClick={() => {
-                                         if (selectedBook.gradeId === grade.id && selectedBook.bookId === book.id) {
-                                           setSelectedBook({ gradeId: null, bookId: null });
-                                         } else {
-                                           setSelectedBook({ gradeId: grade.id, bookId: book.id });
-                                         }
-                                       }}
-                                       style={{cursor: 'pointer'}}>
-                                      {book.name}
-                                      <i className={`fas fa-angle-${selectedBook.gradeId === grade.id && selectedBook.bookId === book.id ? 'down' : 'right'}`}></i>
-                                    </a>
-                                    {selectedBook.gradeId === grade.id && selectedBook.bookId === book.id && (
-                                      <div className="collapse show" id={`collapse${book.id}`}>
-                                        {book.children.map((lesson) => (
-                                          
-                                          <div key={lesson.id}>
-                                            <a className="list-group-item list-group-item-action d-flex justify-content-between align-items-center ps-5" 
-                                               onClick={() => setSelectedLesson(selectedLesson === lesson.id ? null : lesson.id)}
-                                               data-bs-toggle="collapse"
-                                               href={`#collapseSub${lesson.id}`}
-                                               style={{cursor: 'pointer'}}>
-                                              {lesson.name}
-                                              <i className={`fas fa-angle-${selectedLesson === lesson.id ? 'down' : 'right'}`}></i>
-                                            </a>
-                                            <div className="collapse" id={`collapseSub${lesson.id}`}>
-                                              {lesson.children.map((item) => {                                           
-                                                const pathPrefix = item.name.toLowerCase().includes('video') ? 'video' : 'exercise';
-                                                  return (
-                                                  <a key={item.id} 
-                                                     href={`/${pathPrefix}/${grade.name.replace(/ /g, '-')}/${book.name.replace(/ /g, '-')}/${lesson.name.replace(/ /g, '-')}/${item.name.replace(/ /g, '-')}`} 
-                                                     className="list-group-item list-group-item-action"
-                                                     style={{paddingLeft: "6rem"}}>
-                                                    {item.name}
-                                                  </a>
-                                                );
-                                              })}
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+        
+        <div className="container-fluid py-5">
+            <div className="container py-5 d-flex justify-content-center">
+                <div className="p-5 bg-light rounded" style={{width: "500px"}}>
+                    <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{ maxWidth: '700px' }}>
+                        <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">ĐỔI MẬT KHẨU</h4>
+                            {userInfo ? (
+                                <div style={{textAlign: "justify", marginLeft: "4.5rem"}}>
+                                    <p><strong>Tên đăng nhập:</strong> {userInfo.username}</p>
+                                    <p><strong>Email:</strong> {userInfo.email}</p>
+                                    <p><strong>Giới tính:</strong> {userInfo.gender ? 'Nữ' : 'Nam'}</p>
+                                    <p><strong>Ngày sinh:</strong> {formatDate(userInfo.dateOfBirth)}</p>
+                                    <p><strong>Địa chỉ:</strong> {userInfo.address}</p>
+                                    <p><strong>Số điện thoại:</strong> {userInfo.phoneNumber}</p>
+                                </div>
+                                ) : (
+                                    <p>Đang tải thông tin...</p>
+                                )}
+                    </div>             
                 </div>
             </div>
         </div>
-        
 
 
         <div className="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.1s">
@@ -235,7 +166,7 @@ const Primary = () => {
                                 trong các kỳ thi.</p>
                         </div>
                     </div>
-                
+
                     <div className="col-md-6 col-lg-4 col-xl-3" style={{marginLeft: "330px"}}>
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Địa điểm</h4>
@@ -247,6 +178,7 @@ const Primary = () => {
                             </div>
                         </div>
                     </div>
+
                     <div className="col-md-6 col-lg-4 col-xl-3">
                         <div className="footer-item">
                             <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">Thư viện ảnh</h4>
@@ -288,7 +220,6 @@ const Primary = () => {
             </div>
         </div>
 
-
         <div className="container-fluid copyright bg-dark py-4">
             <div className="container">
                 <div className="row">
@@ -307,4 +238,4 @@ const Primary = () => {
   );
 }
 
-export default Primary;
+export default ChangePassword;

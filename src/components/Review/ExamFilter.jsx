@@ -57,7 +57,7 @@ function ExamFilter({setExam}) {
 
   const fetchExam = async () => {
     try {
-      const response = await fetch(`http://localhost:1337/api/exams?populate[0]=questions&populate[1]=questions.answers`);
+      const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/exams?populate[0]=questions&populate[1]=questions.answers`);
       const data = await response.json();
       if (data.data && data.data.length > 0) {
         setExamList(data.data);
@@ -154,7 +154,7 @@ function ExamFilter({setExam}) {
     };
    
     try {
-      const response = await fetch('http://localhost:1337/api/score-exams', {
+      const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/score-exams`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,7 +205,7 @@ function ExamFilter({setExam}) {
     
     try {
       const response = await fetch(
-        `http://localhost:1337/api/score-exams?filters[$and][0][user][$eq]=${userId}&filters[$and][1][exam][$eq]=${examId}&populate=*`
+        `${import.meta.env.VITE_API_ENDPOINT}/api/score-exams?filters[$and][0][user][$eq]=${userId}&filters[$and][1][exam][$eq]=${examId}&populate=*`
       );
 
       if (!response.ok) {

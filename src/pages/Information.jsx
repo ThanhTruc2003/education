@@ -21,7 +21,7 @@ const Information = () => {
   
   const fetchUserInfo = async (userId) => {
     try {
-        const response = await fetch(`http://localhost:1337/api/users?filters[id][$eq]=${userId}`);
+        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/users?filters[id][$eq]=${userId}`);
         const data = await response.json();
         console.log('data:', data);
         if (data && data.length > 0) {
@@ -37,7 +37,7 @@ const Information = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     setUsername('');
-    navigate('/tao-tai-khoan');
+    navigate('/create-account');
 };
 
 const formatDate = (dateString) => {
@@ -47,6 +47,10 @@ const formatDate = (dateString) => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
 };
+
+function handleChangePassword() {
+    navigate('/change-password');
+}
 
   return (
     <>
@@ -106,14 +110,19 @@ const formatDate = (dateString) => {
                                 <div className="user-dropdown">
                                     <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
                                     <div className="dropdown-menu" style={{border: "0"}}>
-                                    <p className="dropdown-item" >
+                                    <p className="dropdown-item" style={{marginBottom: "0px"}}>
+                                        <i className="fa fa-user" style={{ marginRight: '10px' }}></i>
                                         <span style={{ fontWeight: 'lighter' }} >Tài khoản:</span> {username}
                                     </p>
-                                        <button onClick={handleLogout} className="dropdown-item">Đăng xuất</button>
+                                        <button onClick={handleChangePassword} className="dropdown-item">
+                                            <i className="fa fa-key" style={{ marginRight: '10px' }}></i>Đổi mật khẩu</button>
+                                        <div className="dropdown-divider"></div>
+                                        <button onClick={handleLogout} className="dropdown-item">
+                                            <i className="fa fa-sign-in-alt" style={{ marginRight: '10px' }}></i>Đăng xuất</button>
                                     </div>
                                 </div>
                                 ) : (
-                                    <a href="/tao-tai-khoan" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
+                                    <a href="/create-account" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
                                 )}
                         </div>
                     </div>

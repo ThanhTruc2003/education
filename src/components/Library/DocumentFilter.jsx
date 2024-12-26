@@ -34,7 +34,7 @@ function DocumentFilter({ setBooks }) {
             encodeValuesOnly: true,
           }
         )
-        const url = `http://localhost:1337/api/docs?${query}`;
+        const url = `${import.meta.env.VITE_API_ENDPOINT}/api/docs?${query}`;
         const response = await fetch(url);
         const data = await response.json();
         setBooks(data.data);
@@ -47,7 +47,7 @@ function DocumentFilter({ setBooks }) {
     const fetchCategories = async () => {
       setIsLoading(true);
       const response = await fetch(
-        "http://localhost:1337/api/document-categories?filters[parents][$null]=true&populate[0]=children&populate[1]=children.children&sort[0]=priority:asc"
+        `${import.meta.env.VITE_API_ENDPOINT}/api/document-categories?filters[parents][$null]=true&populate[0]=children&populate[1]=children.children&sort[0]=priority:asc`
       );
       const data = await response.json();
       setCategories(data?.data || []);

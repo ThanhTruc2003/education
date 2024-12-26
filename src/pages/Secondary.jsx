@@ -22,25 +22,29 @@ const Secondary = () => {
     navigate('/information');
 };
 
+  function handleChangePassword() {
+    navigate('/change-password');
+}
+
   const handleLogout = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     setUsername('');
-    navigate('/tao-tai-khoan');
+    navigate('/create-account');
 };
 
   const fetchCategories = async () => {
     try {
       // Trước tiên lấy category có name = "THCS"
-      const categoryResponse = await fetch('http://localhost:1337/api/cousre-categories?filters[name][$eq]=THCS');
+      const categoryResponse = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/cousre-categories?filters[name][$eq]=THCS`);
       const categoryData = await categoryResponse.json();
       
       if (categoryData.data && categoryData.data.length > 0) {
         const primaryId = categoryData.data[0].id;
         
         // Sau đó dùng id này để lấy chi tiết
-        const response = await fetch(`http://localhost:1337/api/cousre-categories?filters[parent][$null]=true&populate[0]=children&populate[1]=children.children&populate[2]=children.children.children&populate[3]=children.children.children.children&filters[id]=${primaryId}`);
+        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/cousre-categories?filters[parent][$null]=true&populate[0]=children&populate[1]=children.children&populate[2]=children.children.children&populate[3]=children.children.children.children&filters[id]=${primaryId}`);
         const data = await response.json();
         setCategories(data.data);
       }
@@ -106,14 +110,19 @@ const Secondary = () => {
                                 <div className="user-dropdown">
                                     <i className="fa fa-user-circle nav-link" style={{ fontSize: '2em', cursor: 'pointer' }} />
                                     <div className="dropdown-menu" style={{border: "0"}}>
-                                    <p className="dropdown-item" >
-                                    <span style={{ fontWeight: 'lighter', cursor: "pointer"}} onClick={handleAccountClick} >Tài khoản:</span> {username}
-                                    </p>
-                                        <button onClick={handleLogout} className="dropdown-item">Đăng xuất</button>
+                      <p className="dropdown-item" style={{marginBottom: "0px"}}>
+                        <i className="fa fa-user" style={{ marginRight: '10px' }}></i>
+                        <span style={{ fontWeight: 'lighter', cursor: "pointer"}} onClick={handleAccountClick} >Tài khoản:</span> {username}
+                          </p>
+                                        <button onClick={handleChangePassword} className="dropdown-item">
+                                            <i className="fa fa-key" style={{ marginRight: '10px' }}></i>Đổi mật khẩu</button>
+                                        <div className="dropdown-divider"></div>
+                                        <button onClick={handleLogout} className="dropdown-item">
+                                            <i className="fa fa-sign-in-alt" style={{ marginRight: '10px' }}></i>Đăng xuất</button>
                                     </div>
                                 </div>
                                 ) : (
-                                    <a href="/tao-tai-khoan" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
+                                    <a href="/create-account" className="btn btn-primary px-4 py-3 btn-border-radius">Tạo tài khoản</a>
                                 )}
                         </div>
                     </div>

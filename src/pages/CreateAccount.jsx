@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Button, Checkbox, FormControlLabel, TextField, Typography, Container, Box, IconButton, InputAdornment } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff} from '@mui/icons-material';
 import { RadioGroup, Radio } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -113,7 +113,7 @@ const CreateAccount = () => {
             setPasswordError('');
         }
 
-        const existingUsersResponse = await fetch('http://localhost:1337/api/users');
+        const existingUsersResponse = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/users`);
         if (!existingUsersResponse.ok) {
             throw new Error('Không thể kiểm tra tài khoản');
         }
@@ -131,7 +131,7 @@ const CreateAccount = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:1337/api/users', {
+            const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -164,7 +164,7 @@ const CreateAccount = () => {
             };
     
             try {
-                const res = await fetch('http://localhost:1337/api/auth/local', {
+                const res = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/auth/local`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -224,6 +224,10 @@ const CreateAccount = () => {
         }
         return result;
     }
+
+    const handleGoHome = () => {
+        navigate('/home');
+    };
 
     return (
         <Container className='form-container' style={{ paddingLeft: '0px', paddingRight: '0px' }}> 
@@ -500,6 +504,13 @@ const CreateAccount = () => {
                                     fontweight: 'bold',
                                 }}
                             >Đăng nhập</Button>
+
+                            <Button style={{marginLeft: "7rem", color: '#393d72', fontWeight: 'bold'}}
+                                onClick={handleGoHome}>
+                                <i className="fas fa-arrow-left" style={{ marginRight: '8px' }}></i>
+                                Quay về trang chủ
+                            </Button>
+
                         </Box>
                     </Box>
                 </Box>
