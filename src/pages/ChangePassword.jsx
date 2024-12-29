@@ -1,37 +1,29 @@
 /* eslint-disable react/no-unknown-property */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { TextField, Button, Box, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const ChangePassword = () => {
     const [username, setUsername] = useState('');
-    const [userInfo, setUserInfo] = useState(null);
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
     const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Đổi mật khẩu';
     const savedUsername = localStorage.getItem('username');
-    const userId = localStorage.getItem('userId');
         if (savedUsername) {
             setUsername(savedUsername);
-        }
-        if (userId) {
-            fetchUserInfo(userId);
-        }
-  }, []);
+        }  
+}, []);
   
-  const fetchUserInfo = async (userId) => {
-    try {
-        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/users?filters[id][$eq]=${userId}`);
-        const data = await response.json();
-        console.log('data:', data);
-        if (data && data.length > 0) {
-            setUserInfo(data[0]);
-        }
-    } catch (error) {
-        console.error('Lỗi khi tải thông tin người dùng:', error);
-    }
-};
-
   const handleLogout = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('token');
@@ -40,17 +32,51 @@ const ChangePassword = () => {
     navigate('/create-account');
 };
 
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-};
-
 const handleAccountClick = () => {
     navigate('/information');
 };
+
+const handleChangePassword = async (e) => {
+    e.preventDefault();
+
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+        toast.warning("Vui lòng điền đầy đủ thông tin");
+        return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+        toast.warning('Mật khẩu mới và xác nhận mật khẩu không khớp');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/auth/change-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                currentPassword: currentPassword,
+                password: newPassword,
+                passwordConfirmation: confirmNewPassword
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Lỗi khi đổi mật khẩu');
+        }
+
+        toast.success('Đổi mật khẩu thành công');
+    } catch (error) {
+        console.error('Lỗi khi đổi mật khẩu:', error);
+        toast.error('Đổi mật khẩu thất bại');
+    }
+};
+
+  const handleToggleShowPassword = (setter) => {
+    setter((show) => !show);
+  };
 
   return (
     <>
@@ -118,7 +144,7 @@ const handleAccountClick = () => {
                                             <i className="fa fa-key" style={{ marginRight: '10px' }}></i>Đổi mật khẩu</button>
                                         <div className="dropdown-divider"></div>
                                         <button onClick={handleLogout} className="dropdown-item">
-                                            <i class="fa fa-sign-in-alt" style={{ marginRight: '10px' }}></i>Đăng xuất</button>
+                                            <i className="fa fa-sign-in-alt" style={{ marginRight: '10px' }}></i>Đăng xuất</button>
                                     </div>
                                 </div>
                                 ) : (
@@ -130,24 +156,86 @@ const handleAccountClick = () => {
             </div>
         </div>
         
+        <ToastContainer />
         <div className="container-fluid py-5">
             <div className="container py-5 d-flex justify-content-center">
                 <div className="p-5 bg-light rounded" style={{width: "500px"}}>
-                    <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{ maxWidth: '700px' }}>
+                    <div className="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style={{ maxWidth: '700px', marginBottom: "15px" }}>
                         <h4 className="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">ĐỔI MẬT KHẨU</h4>
-                            {userInfo ? (
-                                <div style={{textAlign: "justify", marginLeft: "4.5rem"}}>
-                                    <p><strong>Tên đăng nhập:</strong> {userInfo.username}</p>
-                                    <p><strong>Email:</strong> {userInfo.email}</p>
-                                    <p><strong>Giới tính:</strong> {userInfo.gender ? 'Nữ' : 'Nam'}</p>
-                                    <p><strong>Ngày sinh:</strong> {formatDate(userInfo.dateOfBirth)}</p>
-                                    <p><strong>Địa chỉ:</strong> {userInfo.address}</p>
-                                    <p><strong>Số điện thoại:</strong> {userInfo.phoneNumber}</p>
-                                </div>
-                                ) : (
-                                    <p>Đang tải thông tin...</p>
-                                )}
                     </div>             
+                    <form onSubmit={handleChangePassword}>
+                        <Box mb={4}>
+                            <TextField
+                                label="Mật khẩu hiện tại"
+                                type={showCurrentPassword ? 'text' : 'password'}
+                                fullWidth
+                                variant="outlined"
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => handleToggleShowPassword(setShowCurrentPassword)}
+                                                edge="end"
+                                            >
+                                                {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Box>
+                        <Box mb={4}>
+                            <TextField
+                                label="Mật khẩu mới"
+                                type={showNewPassword ? 'text' : 'password'}
+                                fullWidth
+                                variant="outlined"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => handleToggleShowPassword(setShowNewPassword)}
+                                                edge="end"
+                                            >
+                                                {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Box>
+                        <Box mb={4}>
+                            <TextField
+                                label="Xác nhận mật khẩu mới"
+                                type={showConfirmNewPassword ? 'text' : 'password'}
+                                fullWidth
+                                variant="outlined"
+                                value={confirmNewPassword}
+                                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => handleToggleShowPassword(setShowConfirmNewPassword)}
+                                                edge="end"
+                                            >
+                                                {showConfirmNewPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Box>
+                        <Box display="flex" justifyContent="center">
+                            <Button type="submit" variant="contained" color="primary" sx={{ backgroundColor: '#ff4880', fontWeight: 'bold' }}>
+                                Đổi mật khẩu
+                            </Button>
+                        </Box>
+                    </form>
                 </div>
             </div>
         </div>

@@ -345,22 +345,31 @@ function Exercise() {
           )}
           <div>
   {questions
-    .sort((a, b) => a.order - b.order)
-    .map((question) => (
-      <div 
-        key={question.id} 
-        className={`card mb-4 ${errors[question.id] ? 'question-error' : ''}`}
-        style={{
-          border: errors[question.id] ? '1px solid #dc3545' : '1px solid rgba(0,0,0,.125)', marginTop: '2rem'
-        }}
-      >
-        <div className="card-body">
-          <h5 className="card-title">{question.name}</h5>
-          {question.image && (
-            <div className="question-image">                    
-              <img src={`${import.meta.env.VITE_API_ENDPOINT}${question.image.url}`} alt="Question" style={{ maxWidth: '100%', height: 'auto' }} />
-            </div>
-          )}
+  .sort((a, b) => {
+    // Trích xuất số từ tên câu hỏi
+    const numA = parseInt(a.name.match(/\d+/)?.[0] || 0, 10); 
+    const numB = parseInt(b.name.match(/\d+/)?.[0] || 0, 10); 
+    return numA - numB; // Sắp xếp theo số
+  })
+  .map((question) => (
+    <div 
+      key={question.id} 
+      className={`card mb-4 ${errors[question.id] ? 'question-error' : ''}`}
+      style={{
+        border: errors[question.id] ? '1px solid #dc3545' : '1px solid rgba(0,0,0,.125)', marginTop: '2rem'
+      }}
+    >
+      <div className="card-body">
+        <h5 className="card-title">{question.name}</h5> {/* Hiển thị tên câu hỏi */}
+        {question.image && (
+          <div className="question-image">                    
+            <img 
+              src={`${import.meta.env.VITE_API_ENDPOINT}${question.image.url}`} 
+              alt="Question" 
+              style={{ maxWidth: '100%', height: 'auto' }} 
+            />
+          </div>
+        )}
           
           {question.answers && question.answers.length > 0 && (
             <div className="answers-list mt-3" style={{marginLeft: '1rem'}}>

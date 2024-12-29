@@ -16,16 +16,18 @@ const Review = () => {
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
 
-  const toggleExpand = (event, categoryId) => {
+  const toggleExpand = (event, categoryId, childId) => {
     event.preventDefault();
-    setExpandedClass(expandedClass === categoryId ? null : categoryId);
+    const newExpandedClass = `${categoryId}_${childId}`;
+    setExpandedClass((prev) => (prev === newExpandedClass ? null : newExpandedClass));
   };
-
+  
   const handleContentSelect = async (event, content, categoryIds) => {
     event.preventDefault();
     setSelectedContent(content);
+    console.log(content);
     
-    if (categoryIds.length >= 3) {
+    if (categoryIds.length === 3) {
       try {
         const query = qs.stringify({
           filters: {
@@ -137,24 +139,24 @@ const Review = () => {
                       <div key={child.id}>
                         <a href=""
                            className="nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg"
-                           onClick={(event) => toggleExpand(event, child.id)}>
+                           onClick={(event) => toggleExpand(event, category.id, child.id)}>
                           {child.name}
                           <i className={`fas ${
-                            expandedClass === child.id ? "fa-angle-down" : "fa-angle-right"
+                            expandedClass === `${category.id}_${child.id}` ? "fa-angle-down" : "fa-angle-right"
                           } ms-2`}></i>
                         </a>
-                        {expandedClass === child.id && (
+                        {expandedClass === `${category.id}_${child.id}` && (
                           <div className="nav flex-column ps-4">
                             {child.children?.map((semester) => (
                               <div key={semester.id}>
                                 <a href=""
                                    className={`nav-link text-dark border-bottom border-light py-2 ps-3 hover-bg ${
-                                     selectedContent === `${child.name}_${semester.name}`
+                                     selectedContent === `${category.name}_${child.name}_${semester.name}`
                                        ? 'active'
                                        : ''
                                    }`}
                                    onClick={(event) => {
-                                     handleContentSelect(event, `${child.name}_${semester.name}`, [category.id, child.id, semester.id]);
+                                     handleContentSelect(event, `${category.name}_${child.name}_${semester.name}`, [category.id, child.id, semester.id]);
                                    }}>
                                   {semester.name}
                                 </a>
